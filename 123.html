@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Плюсы и минусы освобождения от НДС</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #eef1f7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .trainer {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 1.5rem 1.8rem 1.5rem;
+            box-shadow: 0 12px 32px rgba(0, 20, 40, 0.06), 0 4px 12px rgba(0, 20, 40, 0.02);
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .header h1 {
+            font-weight: 400;
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            color: #1a2639;
+        }
+
+        .lightbulb {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            background: none;
+            border: none;
+            padding: 0.2rem 0.5rem;
+            border-radius: 50%;
+            line-height: 1;
+        }
+
+        .lightbulb.visible {
+            opacity: 1;
+        }
+
+        .lightbulb:hover {
+            transform: translateY(-50%) scale(1.15);
+            background: #f0f4fe;
+        }
+
+        .lightbulb:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            padding: 2rem 2rem 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 1.3rem;
+            color: #1a2639;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #95a5c6;
+            transition: all 0.2s;
+            padding: 0.2rem 0.5rem;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: #1a2639;
+            background: #f0f4fe;
+        }
+
+        .modal-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .modal-columns {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .modal-column {
+            background: #f9faff;
+            border-radius: 20px;
+            padding: 1rem;
+            border: 1px solid #eef2f8;
+        }
+
+        .modal-column h3 {
+            font-weight: 400;
+            font-size: 0.95rem;
+            color: #1f2b3e;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e9f2;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+
+        .modal-card {
+            background: white;
+            border: 1.5px solid #4CAF50;
+            border-radius: 14px;
+            padding: 0.4rem 0.7rem;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            color: #1e2a41;
+            margin-bottom: 0.4rem;
+            text-align: center;
+            word-break: break-word;
+            background: #e8f5e9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .columns-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+            min-height: 200px;
+        }
+
+        @media (max-width: 700px) {
+            .columns-wrapper {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+                min-height: auto;
+            }
+        }
+
+        .column {
+            background: #f9faff;
+            border-radius: 24px;
+            padding: 0.8rem 0.8rem 1rem;
+            border: 1px solid #eef2f8;
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+            transition: all 0.2s;
+        }
+
+        .column-header {
+            font-weight: 400;
+            font-size: 0.95rem;
+            color: #1f2b3e;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e9f2;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+
+        .column-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            overflow-y: auto;
+            max-height: 220px;
+            padding-right: 3px;
+            min-height: 120px;
+        }
+
+        .column-content::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .column-content::-webkit-scrollbar-track {
+            background: #edf2f8;
+            border-radius: 8px;
+        }
+
+        .column-content::-webkit-scrollbar-thumb {
+            background: #95CAFA;
+            border-radius: 8px;
+        }
+
+        .column-placeholder {
+            color: #b5c5dd;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 1rem 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+
+        .card-in-column {
+            background: white;
+            border: 1.5px solid #95CAFA;
+            border-radius: 16px;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.78rem;
+            line-height: 1.3;
+            color: #1e2a41;
+            box-shadow: 0 1px 4px rgba(149, 202, 250, 0.08);
+            word-break: break-word;
+            transition: all 0.2s;
+            cursor: default;
+            text-align: center;
+        }
+
+        .card-in-column.correct {
+            border-color: #4CAF50 !important;
+            background: #e8f5e9;
+        }
+
+        .card-in-column.wrong {
+            border-color: #ef5350 !important;
+            background: #ffebee;
+        }
+
+        .card-in-column.drag-over {
+            border-color: #6fb0f0;
+            background: #e3f0fe;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(149, 202, 250, 0.20);
+        }
+
+        .carousel-section {
+            border-top: 1px solid #e1e9f3;
+            padding-top: 0.8rem;
+            margin-top: 0.2rem;
+        }
+
+        .carousel-track-wrapper {
+            position: relative;
+            overflow: hidden;
+            padding: 0.3rem 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            gap: 0.7rem;
+            overflow-x: auto;
+            padding: 0.3rem 0.2rem 0.6rem;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .carousel-track::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .carousel-track::-webkit-scrollbar-track {
+            background: #edf2f8;
+            border-radius: 8px;
+        }
+
+        .carousel-track::-webkit-scrollbar-thumb {
+            background: #95CAFA;
+            border-radius: 8px;
+        }
+
+        .carousel-card {
+            flex: 0 0 200px;
+            min-height: 60px;
+            background: white;
+            border: 1.5px solid #95CAFA;
+            border-radius: 20px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.78rem;
+            line-height: 1.3;
+            color: #1e2a41;
+            box-shadow: 0 1px 6px rgba(149, 202, 250, 0.10);
+            cursor: grab;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: break-word;
+            user-select: none;
+        }
+
+        .carousel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(149, 202, 250, 0.18);
+        }
+
+        .carousel-card:active {
+            cursor: grabbing;
+            transform: scale(0.97);
+        }
+
+        .carousel-card.dragging {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+
+        .carousel-card.empty-msg {
+            flex: 1;
+            border-color: #e2e9f2;
+            color: #a5b5ce;
+            cursor: default;
+            justify-content: center;
+            background: #fafcff;
+            font-size: 0.85rem;
+            min-height: 50px;
+        }
+
+        .carousel-card.empty-msg:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .carousel-nav {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.2rem;
+            justify-content: center;
+        }
+
+        .carousel-btn {
+            background: white;
+            border: 1.5px solid #d0dbe9;
+            border-radius: 60px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #1f2f47;
+        }
+
+        .carousel-btn:hover {
+            background: #f0f6fe;
+            border-color: #95CAFA;
+        }
+
+        .carousel-btn:active {
+            transform: scale(0.92);
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            padding-top: 0.3rem;
+            min-height: 44px;
+        }
+
+        .btn {
+            background: white;
+            border: 1.5px solid #d0dbe9;
+            padding: 0.4rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.82rem;
+            color: #1f2f47;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: #1a2b44;
+            border-color: #1a2b44;
+            color: white;
+            box-shadow: 0 2px 8px rgba(26, 43, 68, 0.10);
+        }
+
+        .btn-primary:hover {
+            background: #112236;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 43, 68, 0.14);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            transform: none;
+        }
+
+        .btn-restart {
+            background: #eef3fc;
+            border-color: #c8d7ed;
+            display: none;
+        }
+
+        .btn-restart.visible {
+            display: inline-block;
+        }
+
+        .btn-restart:hover {
+            background: #e3ebf9;
+        }
+
+        .result-text {
+            font-size: 0.9rem;
+            color: #1a2639;
+            font-weight: 400;
+            margin-right: auto;
+            display: none;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            background: #f0f4fe;
+            border: 1px solid #dae3f0;
+        }
+
+        .result-text.visible {
+            display: inline-block;
+        }
+
+        .result-text.success {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            color: #1e7e34;
+        }
+
+        .result-text.fail {
+            background: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+        }
+
+        @media (max-width: 600px) {
+            .trainer {
+                padding: 0.8rem 0.6rem;
+            }
+            .carousel-card {
+                flex: 0 0 160px;
+                font-size: 0.72rem;
+                padding: 0.5rem 0.7rem;
+                min-height: 50px;
+            }
+            .column {
+                min-height: 140px;
+            }
+            .header h1 {
+                font-size: 1rem;
+            }
+            .column-header {
+                font-size: 0.85rem;
+            }
+            .card-in-column {
+                font-size: 0.72rem;
+                padding: 0.35rem 0.6rem;
+            }
+            .result-text {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.8rem;
+            }
+            .lightbulb {
+                font-size: 1.4rem;
+                right: -0.2rem;
+            }
+            .modal-content {
+                padding: 1.5rem 1rem;
+                max-height: 90vh;
+            }
+            .modal-columns {
+                gap: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="trainer" id="app">
+        <div class="header">
+            <h1>Плюсы и минусы освобождения от НДС</h1>
+            <button class="lightbulb" id="lightbulbBtn" title="Посмотреть правильные ответы">💡</button>
+        </div>
+
+        <div class="columns-wrapper">
+            <div class="column" id="colPlus">
+                <div class="column-header">Плюсы</div>
+                <div class="column-content" id="colPlusContent">
+                    <div class="column-placeholder">перетащите сюда</div>
+                </div>
+            </div>
+
+            <div class="column" id="colMinus">
+                <div class="column-header">Минусы</div>
+                <div class="column-content" id="colMinusContent">
+                    <div class="column-placeholder">перетащите сюда</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-section">
+            <div class="carousel-track-wrapper">
+                <div class="carousel-track" id="carouselTrack"></div>
+            </div>
+
+            <div class="carousel-nav">
+                <button class="carousel-btn" id="scrollLeft">◀</button>
+                <button class="carousel-btn" id="scrollRight">▶</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <span class="result-text" id="resultText"></span>
+            <button class="btn btn-primary" id="checkBtn">Проверить</button>
+            <button class="btn btn-restart" id="restartBtn">Начать заново</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно с правильными ответами -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <h2>✅ Правильные ответы</h2>
+            <div class="modal-columns">
+                <div class="modal-column">
+                    <h3>Плюсы</h3>
+                    <div id="modalPlus"></div>
+                </div>
+                <div class="modal-column">
+                    <h3>Минусы</h3>
+                    <div id="modalMinus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- ДАННЫЕ ----------
+            const cardData = [
+                { text: 'Не начислять и не платить НДС по операциям, которые совершает на территории РФ.', correct: 'plus' },
+                { text: 'Не подавать декларацию', correct: 'plus' },
+                { text: 'Не заполнять книгу покупок', correct: 'plus' },
+                { text: 'Включать входной НДС в стоимость товаров, работ или услуг', correct: 'minus' },
+                { text: 'Восстановить налог, который приняли ранее к вычету по товарам, которые купили и не использовали', correct: 'minus' },
+                { text: 'Выставлять счета-фактуры с пометкой «Без налога (НДС)»', correct: 'minus' },
+                { text: 'Заполнять книгу продаж', correct: 'minus' },
+                { text: 'Начислять и платить налог, когда реализацию подакцизных товаров', correct: 'minus' },
+                { text: 'Не контролировать размер выручки', correct: 'wrong' },
+                { text: 'Не оформлять счета-фактуры', correct: 'wrong' },
+                { text: 'Компания больше не может работать с покупателями с НДС', correct: 'wrong' },
+                { text: 'Увеличить стоимость товаров на сумму входного НДС и дополнительно предъявить этот налог покупателю', correct: 'wrong' }
+            ];
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // СОСТОЯНИЕ
+            let cards = [];
+            let distributed = { plus: [], minus: [] };
+            let checkMode = false;
+            let nextId = 0;
+
+            // DOM
+            const colPlusContent = document.getElementById('colPlusContent');
+            const colMinusContent = document.getElementById('colMinusContent');
+            const carouselTrack = document.getElementById('carouselTrack');
+            const checkBtn = document.getElementById('checkBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const resultText = document.getElementById('resultText');
+            const lightbulbBtn = document.getElementById('lightbulbBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalClose = document.getElementById('modalClose');
+            const modalPlus = document.getElementById('modalPlus');
+            const modalMinus = document.getElementById('modalMinus');
+            const scrollLeft = document.getElementById('scrollLeft');
+            const scrollRight = document.getElementById('scrollRight');
+
+            // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+            function initGame() {
+                const shuffledData = shuffleArray([...cardData]);
+                cards = shuffledData.map((item) => ({
+                    id: nextId++,
+                    text: item.text,
+                    correct: item.correct,
+                }));
+                distributed = { plus: [], minus: [] };
+                checkMode = false;
+                checkBtn.disabled = false;
+                checkBtn.style.display = 'inline-block';
+                restartBtn.classList.remove('visible');
+                resultText.classList.remove('visible');
+                resultText.classList.remove('success', 'fail');
+                resultText.textContent = '';
+                lightbulbBtn.classList.remove('visible');
+                renderAll();
+            }
+
+            // ---------- РЕНДЕР ----------
+            function renderAll() {
+                renderColumns();
+                renderCarousel();
+            }
+
+            function renderColumns() {
+                colPlusContent.innerHTML = '';
+                if (distributed.plus.length === 0) {
+                    colPlusContent.innerHTML = '<div class="column-placeholder">перетащите сюда</div>';
+                } else {
+                    distributed.plus.forEach(c => {
+                        const el = document.createElement('div');
+                        el.className = 'card-in-column';
+                        if (checkMode) {
+                            if (c.correct === 'wrong') {
+                                el.classList.add('wrong');
+                            } else {
+                                el.classList.add(c.correct === 'plus' ? 'correct' : 'wrong');
+                            }
+                        }
+                        el.textContent = c.text;
+                        colPlusContent.appendChild(el);
+                    });
+                }
+
+                colMinusContent.innerHTML = '';
+                if (distributed.minus.length === 0) {
+                    colMinusContent.innerHTML = '<div class="column-placeholder">перетащите сюда</div>';
+                } else {
+                    distributed.minus.forEach(c => {
+                        const el = document.createElement('div');
+                        el.className = 'card-in-column';
+                        if (checkMode) {
+                            if (c.correct === 'wrong') {
+                                el.classList.add('wrong');
+                            } else {
+                                el.classList.add(c.correct === 'minus' ? 'correct' : 'wrong');
+                            }
+                        }
+                        el.textContent = c.text;
+                        colMinusContent.appendChild(el);
+                    });
+                }
+            }
+
+            function renderCarousel() {
+                carouselTrack.innerHTML = '';
+                const available = cards.filter(c => 
+                    !distributed.plus.some(d => d.id === c.id) && 
+                    !distributed.minus.some(d => d.id === c.id)
+                );
+
+                if (available.length === 0) {
+                    const msg = document.createElement('div');
+                    msg.className = 'carousel-card empty-msg';
+                    msg.textContent = 'Все карточки распределены';
+                    carouselTrack.appendChild(msg);
+                    return;
+                }
+
+                available.forEach(card => {
+                    const el = document.createElement('div');
+                    el.className = 'carousel-card';
+                    el.textContent = card.text;
+                    el.dataset.id = card.id;
+                    
+                    el.draggable = !checkMode;
+                    if (!checkMode) {
+                        el.addEventListener('dragstart', handleDragStart);
+                        el.addEventListener('dragend', handleDragEnd);
+                    } else {
+                        el.style.cursor = 'default';
+                    }
+
+                    carouselTrack.appendChild(el);
+                });
+            }
+
+            // ---------- DRAG & DROP ----------
+            function handleDragStart(e) {
+                const id = parseInt(e.target.dataset.id);
+                if (isNaN(id)) return;
+                if (checkMode) {
+                    e.preventDefault();
+                    return false;
+                }
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', id);
+            }
+
+            function handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+                document.querySelectorAll('.column-content').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+            }
+
+            function setupDropZones() {
+                const columns = [colPlusContent, colMinusContent];
+                columns.forEach(zone => {
+                    zone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        if (!checkMode) {
+                            zone.classList.add('drag-over');
+                        }
+                    });
+
+                    zone.addEventListener('dragleave', () => {
+                        zone.classList.remove('drag-over');
+                    });
+
+                    zone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        zone.classList.remove('drag-over');
+                        if (checkMode) return;
+
+                        const data = e.dataTransfer.getData('text/plain');
+                        if (!data) return;
+                        const id = parseInt(data);
+                        if (isNaN(id)) return;
+
+                        const card = cards.find(c => c.id === id);
+                        if (!card) return;
+
+                        const alreadyDistributed = distributed.plus.some(d => d.id === id) || 
+                                                   distributed.minus.some(d => d.id === id);
+                        if (alreadyDistributed) return;
+
+                        const isPlus = zone.id === 'colPlusContent';
+                        const target = isPlus ? 'plus' : 'minus';
+
+                        if (target === 'plus') {
+                            distributed.plus.push({ ...card });
+                        } else {
+                            distributed.minus.push({ ...card });
+                        }
+
+                        renderAll();
+                    });
+                });
+            }
+
+            // ---------- ПРОВЕРКА ----------
+            function checkAnswers() {
+                if (checkMode) return;
+                checkMode = true;
+                checkBtn.disabled = true;
+                checkBtn.style.display = 'none';
+                restartBtn.classList.add('visible');
+                lightbulbBtn.classList.add('visible');
+                
+                renderAll();
+                
+                let totalCorrect = 0;
+                let totalErrors = 0;
+                let totalDistributed = 0;
+                
+                cards.forEach(c => {
+                    const isInPlus = distributed.plus.some(d => d.id === c.id);
+                    const isInMinus = distributed.minus.some(d => d.id === c.id);
+                    
+                    if (isInPlus || isInMinus) {
+                        totalDistributed++;
+                    }
+                    
+                    if (c.correct === 'wrong') {
+                        if (isInPlus || isInMinus) {
+                            totalErrors++;
+                        }
+                    } else {
+                        if (isInPlus && c.correct === 'plus') {
+                            totalCorrect++;
+                        } else if (isInMinus && c.correct === 'minus') {
+                            totalCorrect++;
+                        } else if (isInPlus || isInMinus) {
+                            totalErrors++;
+                        }
+                    }
+                });
+                
+                resultText.classList.add('visible');
+                
+                const allCardsDistributed = totalDistributed === cards.length;
+                const noErrors = totalErrors === 0;
+                
+                if (allCardsDistributed && noErrors) {
+                    resultText.textContent = '🎉 Вы выполнили верно упражнение!';
+                    resultText.classList.add('success');
+                    resultText.classList.remove('fail');
+                } else {
+                    resultText.textContent = 'Вы не все карточки распределили верно!';
+                    resultText.classList.add('fail');
+                    resultText.classList.remove('success');
+                }
+            }
+
+            // ---------- МОДАЛЬНОЕ ОКНО ----------
+            function openModal() {
+                modalPlus.innerHTML = '';
+                modalMinus.innerHTML = '';
+                
+                // Только правильные карточки (плюсы и минусы)
+                const plusCards = cardData.filter(c => c.correct === 'plus');
+                const minusCards = cardData.filter(c => c.correct === 'minus');
+                
+                plusCards.forEach(c => {
+                    const el = document.createElement('div');
+                    el.className = 'modal-card';
+                    el.textContent = c.text;
+                    modalPlus.appendChild(el);
+                });
+                
+                minusCards.forEach(c => {
+                    const el = document.createElement('div');
+                    el.className = 'modal-card';
+                    el.textContent = c.text;
+                    modalMinus.appendChild(el);
+                });
+                
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // ---------- РЕСТАРТ ----------
+            function restart() {
+                cards = [];
+                distributed = { plus: [], minus: [] };
+                checkMode = false;
+                nextId = 0;
+                lightbulbBtn.classList.remove('visible');
+                closeModal();
+                initGame();
+            }
+
+            // ---------- СКРОЛЛ ----------
+            function scrollCarousel(direction) {
+                const scrollAmount = 220;
+                if (direction === 'left') {
+                    carouselTrack.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                } else {
+                    carouselTrack.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }
+
+            // ---------- СОБЫТИЯ ----------
+            checkBtn.addEventListener('click', checkAnswers);
+            restartBtn.addEventListener('click', restart);
+            lightbulbBtn.addEventListener('click', openModal);
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+            scrollLeft.addEventListener('click', () => scrollCarousel('left'));
+            scrollRight.addEventListener('click', () => scrollCarousel('right'));
+
+            // ---------- СТАРТ ----------
+            setupDropZones();
+            initGame();
+
+        })();
+    </script>
+</body>
+</html>
