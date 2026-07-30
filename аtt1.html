@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Наша Бухгалтерия · НДС-тренажер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #e8edf4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            padding: 12px;
+        }
+        .messenger {
+            max-width: 780px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 16px 40px -12px rgba(0, 20, 40, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+            max-height: 740px;
+        }
+        .messenger-header {
+            background: #ffffff;
+            padding: 10px 18px;
+            border-bottom: 1px solid #eef2f7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .messenger-header .back-icon {
+            font-size: 18px;
+            color: #6f7d8e;
+            cursor: default;
+        }
+        .messenger-header .avatar-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            position: relative;
+        }
+        .messenger-header .avatar-group .mini-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 12px;
+            color: white;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+        .messenger-header .avatar-group .mini-avatar.olga {
+            background: #95CAFA;
+        }
+        .messenger-header .avatar-group .mini-avatar.marina {
+            background: #6f9fd8;
+        }
+        .messenger-header .avatar-group .mini-avatar.user {
+            background: #cbdae9;
+            color: #1f2a36;
+        }
+        .messenger-header .avatar-group .mini-avatar .online-dot {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            background: #4cd964;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px rgba(76, 217, 100, 0.3);
+        }
+        .messenger-header .avatar-group .mini-avatar .glow {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 70%);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .messenger-header .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .messenger-header .chat-info h2 {
+            font-weight: 500;
+            font-size: 14px;
+            color: #1a2634;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .messenger-header .chat-info h2 .snake-icon {
+            font-size: 15px;
+        }
+        .messenger-header .chat-info .status {
+            font-size: 11px;
+            color: #7a8a9e;
+        }
+        .messenger-header .chat-info .status .online-count {
+            color: #4cd964;
+            font-weight: 500;
+        }
+        .messenger-header .badge {
+            background: #95CAFA;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+        .chat-scroll {
+            flex: 1;
+            padding: 12px 16px 6px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: #f7faff;
+            scroll-behavior: smooth;
+            min-height: 0;
+        }
+        .chat-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: #eef2f7;
+            border-radius: 12px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #95CAFA;
+            border-radius: 12px;
+        }
+        #messagesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 100%;
+        }
+        .msg {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            max-width: 90%;
+            animation: fadeSlide 0.15s ease;
+            margin-bottom: 1px;
+        }
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .msg .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 13px;
+            color: white;
+            box-shadow: 0 2px 6px rgba(149, 202, 250, 0.15);
+            text-transform: uppercase;
+            margin-top: 2px;
+            position: relative;
+        }
+        .msg .avatar .online-dot {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            background: #4cd964;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px rgba(76, 217, 100, 0.3);
+        }
+        .msg .avatar .glow {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.35), transparent 70%);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .msg .avatar.olga {
+            background: #95CAFA;
+        }
+        .msg .avatar.marina {
+            background: #6f9fd8;
+        }
+        .msg .avatar.user {
+            background: #cbdae9;
+            color: #1f2a36;
+        }
+        .msg .bubble {
+            background: white;
+            padding: 6px 14px;
+            border-radius: 14px 14px 14px 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            border: 1px solid #eef4fc;
+            font-size: 13.5px;
+            line-height: 1.45;
+            color: #1f2a36;
+            flex: 1;
+            position: relative;
+        }
+        .msg .bubble .speaker-name {
+            font-weight: 600;
+            font-size: 12px;
+            color: #1a2a3a;
+            margin-bottom: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .msg .bubble .speaker-name .time {
+            font-weight: 400;
+            font-size: 10px;
+            color: #8a9aaa;
+            margin-left: auto;
+        }
+        .msg .bubble .text {
+            word-break: break-word;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .msg.self {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+            max-width: 90%;
+        }
+        .msg.self .bubble {
+            background: #e5f0fe;
+            border-color: #cde0fa;
+            border-radius: 14px 14px 4px 14px;
+            padding: 6px 14px;
+        }
+        .msg.self .bubble .speaker-name .time {
+            margin-left: 0;
+            margin-right: auto;
+        }
+        .msg.self .avatar {
+            background: #d0dbe8;
+            color: #1f2a36;
+        }
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px 12px 16px;
+            background: #ffffff;
+            border-top: 1px solid #eef2f7;
+            flex-shrink: 0;
+        }
+        .input-area .options-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .input-area .options-wrapper .option-btn {
+            background: white;
+            border: 1.5px solid #95CAFA;
+            border-radius: 14px;
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 450;
+            color: #1b2633;
+            text-align: left;
+            transition: 0.12s ease;
+            cursor: pointer;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            width: 100%;
+            line-height: 1.3;
+        }
+        .input-area .options-wrapper .option-btn:hover {
+            background: #f0f8ff;
+            border-color: #7bb8f0;
+            transform: scale(1.005);
+            box-shadow: 0 3px 10px rgba(149, 202, 250, 0.15);
+        }
+        .input-area .options-wrapper .option-btn:active {
+            transform: scale(0.98);
+        }
+        .input-area .options-wrapper .option-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+        .input-area .options-wrapper .option-btn.active {
+            border-color: #4a8fc7;
+            background: #e5f0fe;
+        }
+        .input-area .send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 38px;
+            background: #95CAFA;
+            border: none;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+            transition: 0.12s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(149, 202, 250, 0.2);
+        }
+        .input-area .send-btn:hover {
+            background: #7fb8f0;
+            transform: scale(1.02);
+        }
+        .input-area .send-btn:active {
+            transform: scale(0.94);
+        }
+        .input-area .send-btn.hidden {
+            display: none;
+        }
+        .feedback-box {
+            margin: 8px 0 2px 0;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: #f9fcff;
+            border: 1px solid #dfe9f5;
+            display: none;
+            width: 100%;
+            animation: fadeSlide 0.25s ease;
+        }
+        .feedback-box.visible {
+            display: block;
+        }
+        .feedback-box .fb-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .feedback-box .fb-title.success {
+            color: #1a7f4a;
+        }
+        .feedback-box .fb-title.error {
+            color: #b13e3e;
+        }
+        .feedback-box .fb-body {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #1e2b3a;
+        }
+        .feedback-box .fb-body strong {
+            font-weight: 500;
+            color: #0f1e2e;
+        }
+        .feedback-box .restart-small {
+            margin-top: 10px;
+            background: transparent;
+            border: 1.5px solid #95CAFA;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-weight: 500;
+            font-size: 12px;
+            color: #1e3c5a;
+            cursor: pointer;
+            transition: 0.12s;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+        }
+        .feedback-box .restart-small:hover {
+            background: #e7f3ff;
+            border-color: #6ba7e0;
+        }
+        .hidden {
+            display: none !important;
+        }
+        @media (max-width: 520px) {
+            .messenger {
+                height: 96vh;
+                max-height: none;
+                border-radius: 16px;
+            }
+            .msg {
+                max-width: 94%;
+            }
+            .msg.self {
+                max-width: 94%;
+            }
+            .input-area {
+                padding: 6px 12px 10px;
+            }
+            .option-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .msg .bubble {
+                font-size: 12.5px;
+                padding: 5px 12px;
+            }
+            .msg .bubble .text {
+                font-size: 12.5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="messenger" id="app">
+        <div class="messenger-header">
+            <span class="back-icon">←</span>
+            <div class="avatar-group">
+                <div class="mini-avatar olga">О<span class="online-dot"></span><span class="glow"></span></div>
+                <div class="mini-avatar marina">М<span class="online-dot"></span><span class="glow"></span></div>
+                <div class="mini-avatar user">В<span class="online-dot"></span><span class="glow"></span></div>
+            </div>
+            <div class="chat-info">
+                <h2><span class="snake-icon">🐍</span> Наша Бухгалтерия</h2>
+                <span class="status"><span class="online-count">● 3</span> онлайн</span>
+            </div>
+            <span class="badge">тренажер</span>
+        </div>
+
+        <div class="chat-scroll" id="chatScroll">
+            <div id="messagesContainer"></div>
+            <div id="feedbackContainer" class="feedback-box"></div>
+        </div>
+
+        <div class="input-area" id="inputArea">
+            <div class="options-wrapper" id="optionsWrapper"></div>
+            <button class="send-btn" id="sendBtn" title="Отправить">➤</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const STEPS = {
+                intro: {
+                    id: 'intro',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Марина, ты представляешь, что у нас произошло? Мы сдавали жилые помещения рабочим и решили, что НДС по этим операциям 0%. А налоговая решила, что льготы у нас нет и доначислила налог по ставке 22%.' },
+                        { speaker: 'Ольга', text: 'Самое неприятное — инспектор считает налог сверх цены договора. Я пыталась объяснить, что это ошибка, но мне ответили: «Ошиблись — доплачивайте».' },
+                        { speaker: 'Марина', text: 'Подожди, Оля. Если льгота не положена, значит, НДС нужно было начислить. Возможно, поэтому инспектор и требует уплатить его дополнительно.' },
+                        { speaker: 'Ольга', text: 'Вот именно! Но теперь директор говорит, что это полностью моя ошибка. Неужели действительно придется платить эти 22% сверх всей суммы договора?' }
+                    ],
+                    options: [
+                        { id: '1A', label: 'Коллеги, подождите, давайте подумаем. НДС — чьи деньги? Кто обязан перечислить его государству, а кто несет расходы?' },
+                        { id: '1B', label: 'Марина, думаю, инспектор прав. Если НДС начислили неправильно, теперь надо доплатить сверх цены договора.' },
+                        { id: '1C', label: 'Подождите. НДС — косвенный налог. Если его оплачивает покупатель, почему мы должны платить за свой счет?' }
+                    ],
+                    nextMap: { '1A': '2A', '1B': '2B', '1C': '2C' }
+                },
+                '2A': {
+                    id: '2A',
+                    messages: [
+                        { speaker: 'Марина', text: 'Налог платит покупатель, но перечисляет его продавец. Значит, мы и обязаны его оплатить!' },
+                        { speaker: 'Ольга', text: 'Ну вообще-то налог платит покупатель, потому что НДС включается в цену товара или услуги.' }
+                    ],
+                    options: [
+                        { id: '2A-1', label: 'Покупатель уже оплатил услугу. Если начислить НДС сверху, цена договора изменится.' },
+                        { id: '2A-2', label: 'Ну мне кажется, у нас только один путь — согласиться с налоговой.' },
+                        { id: '2A-3', label: 'Давайте посчитаем оба варианта — налог внутри цены и сверх — и выберем выгодный.' }
+                    ],
+                    nextMap: { '2A-1': '3A', '2A-2': '3B', '2A-3': '3C' }
+                },
+                '2B': {
+                    id: '2B',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Подожди. Но давай посмотрим на ситуацию с другой стороны. Покупатель уже заплатил ту цену, которую мы указали в договоре. Если мы сейчас добавим сверху еще 22%, получится, что мы фактически увеличиваем стоимость услуги уже после заключения договора.' },
+                        { speaker: 'Марина', text: 'Если мы ошиблись, нужно просто доплатить 22% и закрыть вопрос.' },
+                        { speaker: 'Ольга', text: 'Конечно, налог платить придется. Вопрос не в том, платить или нет. Вопрос в другом: кто его платить будет?' },
+                        { speaker: 'Марина', text: 'Ну кто-кто, мы платим. Бессмысленный спор.' }
+                    ],
+                    options: [
+                        { id: '2B-1', label: 'Налоговая действительно права в том, что мы им должны НДС' },
+                        { id: '2B-2', label: 'Оля права: нельзя увеличить цену без согласия.' },
+                        { id: '2B-3', label: 'Тогда вообще не платим НДС. Мы применили 0% — будем отстаивать позицию.' }
+                    ],
+                    nextMap: { '2B-1': '3D', '2B-2': '3A', '2B-3': '3E' }
+                },
+                '2C': {
+                    id: '2C',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Вот! Я тоже об этом думаю. Мы ведь не забрали эти деньги себе. Мы просто применили ставку, которая, как нам казалось, была правильной.' },
+                        { speaker: 'Марина', text: 'Ну это вообще неправильно!' },
+                        { speaker: 'Ольга', text: 'То есть наша ошибка со ставкой все равно остается нашей проблемой?' },
+                        { speaker: 'Марина', text: 'Да. Вопрос только в другом: НДС считать в цене или сверху.' }
+                    ],
+                    options: [
+                        { id: '2C-1', label: 'Коллеги, давайте логично, мы сдавали места, это услуги гостиницы, давайте отстаивать свою правоту. Мы попадаем под льготы. Неважно.' },
+                        { id: '2C-2', label: 'Марина права. Вопрос не в том, платить или нет. Нужно определить: налог внутри цены или сверху?' },
+                        { id: '2C-3', label: 'Если налог всё-таки платить, проще согласиться и перечислить 22% сверху.' }
+                    ],
+                    nextMap: { '2C-1': '3E', '2C-2': '3A', '2C-3': '3D' }
+                },
+                '3A': {
+                    id: '3A',
+                    messages: [
+                        { speaker: 'Марина', text: 'Именно. Теперь давайте ответим на главный вопрос: можем ли мы изменить цену договора уже после того, как его заключили?' },
+                        { speaker: 'Ольга', text: 'Наверное нет, если покупатель уже согласился на определенную сумму, это будет неправильно.' },
+                        { speaker: 'Марина', text: 'Ну вот, давай от этого отталкиваться.' }
+                    ],
+                    options: [
+                        { id: '3A-1', label: 'Если в договоре не указали «НДС сверху», налог уже в цену.' },
+                        { id: '3A-2', label: 'Я думаю, всё-таки налоговая права, и налог мы теперь им должны сверху.' },
+                        { id: '3A-3', label: 'Лучше направить запрос в налоговую и спросить, как они считают правильным.' }
+                    ],
+                    nextMap: { '3A-1': 'FIN1', '3A-2': 'FIN2', '3A-3': 'FIN3' }
+                },
+                '3B': {
+                    id: '3B',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Вот этого я и боялась. Получается, директор действительно скажет, что из-за моей ошибки компания потеряла деньги?' },
+                        { speaker: 'Марина', text: 'Оля, ошибка есть, но давай разберемся сколько платить теперь.' },
+                        { speaker: 'Ольга', text: 'Давай(' },
+                        { speaker: 'Марина', text: 'Если в договоре не было условия, что НДС оплачивается отдельно сверху, нельзя просто после сделки добавить еще 22% к стоимости.' }
+                    ],
+                    options: [
+                        { id: '3B-1', label: 'Марина, у меня сомнения по поводу твоих размышлений' },
+                        { id: '3B-2', label: 'Я считаю, если налог в договоре сверху не прописан, значит, он в цене договора.' },
+                        { id: '3B-3', label: 'Коллеги, вы меня вообще запутали. Давайте вообще не будем ничего платить)))' }
+                    ],
+                    nextMap: { '3B-1': 'FIN2', '3B-2': 'FIN1', '3B-3': 'FIN4' }
+                },
+                '3C': {
+                    id: '3C',
+                    messages: [
+                        { speaker: 'Ольга', text: 'В принципе логично.' },
+                        { speaker: 'Марина', text: 'Посчитать варианты можно, но сначала нужно понять, какой из них соответствует закону.' }
+                    ],
+                    options: [
+                        { id: '3C-1', label: 'Какая разница? Главное — минимизировать потери компании.' },
+                        { id: '3C-2', label: 'Коллеги, давайте еще раз подумаем. Я считаю, что налоговая не права, и налог уже сидит в цене услуги.' },
+                        { id: '3C-3', label: 'Проще согласиться с налоговой и заплатить 22% сверху.' }
+                    ],
+                    nextMap: { '3C-1': 'FIN5', '3C-2': 'FIN1', '3C-3': 'FIN2' }
+                },
+                '3D': {
+                    id: '3D',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Значит, придется заплатить сверху(' },
+                        { speaker: 'Марина', text: 'Но давайте проверим один момент. Налоговая действительно может требовать налог. Но означает ли это, что она может изменить условия договора между продавцом и покупателем?' },
+                        { speaker: 'Ольга', text: 'Получается, налоговая решает налоговый вопрос, но не меняет договор?' },
+                        { speaker: 'Марина', text: 'Именно. Договорная цена и налоговая обязанность — это разные вещи.' }
+                    ],
+                    options: [
+                        { id: '3D-1', label: 'Спорить не стоит. Главное — исполнить требование налоговой.' },
+                        { id: '3D-2', label: 'Понимаю. Налог нужно заплатить, но это не значит автоматического увеличения цены. Если «НДС сверху» нет — расчетная ставка 22/122.' },
+                        { id: '3D-3', label: 'Тогда откажемся платить. Раз была ставка 0% — будем доказывать правоту.' }
+                    ],
+                    nextMap: { '3D-1': 'FIN2', '3D-2': 'FIN1', '3D-3': 'FIN4' }
+                },
+                '3E': {
+                    id: '3E',
+                    messages: [
+                        { speaker: 'Ольга', text: 'Да! Тогда будем подавать в суд. Пусть налоговая доказывает свою позицию.' },
+                        { speaker: 'Марина', text: 'Но сначала нужно проверить, была ли у нас вообще законная возможность применять ставку 0%. Если льгота не распространялась на такие услуги, сама ошибка в ставке не исчезает только потому, что мы были уверены в своей правоте.' }
+                    ],
+                    options: [
+                        { id: '3E-1', label: 'Будем полностью отрицать обязанность платить НДС. Пусть налоговая доказывает.' },
+                        { id: '3E-2', label: 'Согласен. Если ставку мы применили не правильно — вопрос не в том, платить или нет. Нужно определить: внутри цены или сверху.' },
+                        { id: '3E-3', label: 'Раз налог есть — просто заплатим 22% сверху.' }
+                    ],
+                    nextMap: { '3E-1': 'FIN4', '3E-2': 'FIN1', '3E-3': 'FIN2' }
+                }
+            };
+
+            const FINALS = {
+                'FIN1': {
+                    type: 'success',
+                    title: '✅ Поздравляем! Правильный вывод.',
+                    body: 'Вы верно определили: спор не о том, нужно ли платить НДС, а о том, как его рассчитывать. Если в договоре нет условия «НДС сверху», налог считается включенным в цену. Судебная практика (Постановление АС Московского округа от 13.01.2026 № А40-267640/2024) подтверждает: доначисление НДС — в пределах цены договора.'
+                },
+                'FIN2': {
+                    type: 'error',
+                    title: '❌ К сожалению, ошибка.',
+                    body: 'Вы верно поняли, что НДС необходимо уплатить, но неверно определили способ. Если НДС отсутствует в договоре, это значит, что налог уже в цене услуги. (Постановление АС Московского округа от 13.01.2026 № А40-267640/2024).'
+                },
+                'FIN3': {
+                    type: 'error',
+                    title: '❌ Пассивная стратегия.',
+                    body: 'Запрос в налоговую не решит спор, если инспекция уже вынесла решение. Самостоятельно проанализируйте договор и налоговые последствия. Если в договоре отсутствует, значит налог уже в цене услуги.'
+                },
+                'FIN4': {
+                    type: 'error',
+                    title: '❌ Ошибка.',
+                    body: 'Если льготу применили неправильно — НДС подлежит уплате. Спор не о наличии налога, а о порядке расчета.'
+                },
+                'FIN5': {
+                    type: 'error',
+                    title: '❌ Ошибка.',
+                    body: 'В налоговом споре важно сначала определить правовую позицию, а не выбирать самый выгодный вариант расчета. Проверьте условия договора: если в нем нет пункта о том, что НДС уплачиваете дополнительно сверх цены, считайте, что налог уже включен в стоимость.'
+                }
+            };
+
+            let currentStepId = 'intro';
+            let finished = false;
+            let pendingOptionId = null;
+            let allMessages = [];
+
+            const messagesContainer = document.getElementById('messagesContainer');
+            const optionsWrapper = document.getElementById('optionsWrapper');
+            const feedbackContainer = document.getElementById('feedbackContainer');
+            const sendBtn = document.getElementById('sendBtn');
+            const chatScroll = document.getElementById('chatScroll');
+
+            function getTime() {
+                const d = new Date();
+                return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            }
+
+            function addMessages(messages) {
+                messages.forEach(msg => allMessages.push(msg));
+            }
+
+            function renderAllMessages() {
+                let html = '';
+                allMessages.forEach((msg) => {
+                    const isUser = msg.speaker === 'Вы';
+                    const avatarClass = isUser ? 'user' :
+                        msg.speaker === 'Ольга' ? 'olga' : 'marina';
+                    const avatarLetter = msg.speaker.charAt(0);
+                    const msgClass = isUser ? 'msg self' : 'msg';
+                    const time = getTime();
+                    html += `
+                        <div class="${msgClass}">
+                            <div class="avatar ${avatarClass}">
+                                ${avatarLetter}
+                                <span class="online-dot"></span>
+                                <span class="glow"></span>
+                            </div>
+                            <div class="bubble">
+                                <div class="speaker-name">
+                                    ${msg.speaker}
+                                    <span class="time">${time}</span>
+                                </div>
+                                <div class="text">${msg.text}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                messagesContainer.innerHTML = html;
+                chatScroll.scrollTop = chatScroll.scrollHeight;
+            }
+
+            function renderStep(stepId) {
+                if (finished) return;
+                const step = STEPS[stepId];
+                if (!step) return;
+
+                feedbackContainer.classList.remove('visible');
+                feedbackContainer.style.display = 'none';
+
+                addMessages(step.messages);
+                renderAllMessages();
+
+                let optsHtml = '';
+                if (step.options && step.options.length) {
+                    step.options.forEach(opt => {
+                        optsHtml += `<button class="option-btn" data-optid="${opt.id}">${opt.label}</button>`;
+                    });
+                }
+                optionsWrapper.innerHTML = optsHtml;
+
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (finished) return;
+                        const optId = this.dataset.optid;
+                        pendingOptionId = optId;
+                        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+
+                sendBtn.style.opacity = '1';
+                sendBtn.classList.remove('hidden');
+            }
+
+            function handleSend() {
+                if (finished) return;
+                if (!pendingOptionId) {
+                    sendBtn.style.transform = 'scale(0.9)';
+                    setTimeout(() => sendBtn.style.transform = '', 200);
+                    return;
+                }
+
+                const step = STEPS[currentStepId];
+                if (!step) return;
+
+                const nextId = step.nextMap ? step.nextMap[pendingOptionId] : null;
+                if (!nextId) return;
+
+                const selectedOption = step.options.find(opt => opt.id === pendingOptionId);
+                if (selectedOption) {
+                    const lastMsg = allMessages[allMessages.length - 1];
+                    if (!lastMsg || lastMsg.speaker !== 'Вы' || lastMsg.text !== selectedOption.label) {
+                        addMessages([{ speaker: 'Вы', text: selectedOption.label }]);
+                        renderAllMessages();
+                    }
+                }
+
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    b.style.borderColor = '#95CAFA';
+                    b.style.background = 'white';
+                    b.classList.remove('active');
+                });
+
+                pendingOptionId = null;
+
+                if (nextId.startsWith('FIN')) {
+                    addFinalMessages(nextId);
+                    renderAllMessages();
+                    showFinal(nextId);
+                    return;
+                }
+
+                currentStepId = nextId;
+                renderStep(nextId);
+            }
+
+            function addFinalMessages(finalId) {
+                let finalMessages = [];
+                if (finalId === 'FIN1') {
+                    finalMessages = [
+                        { speaker: 'Вы', text: 'Мы действительно должны уплатить НДС, потому что неправильно применили ставку. Если в договоре мы не указали, что НДС сверху, значит, налог уже в стоимости услуги. Поэтому НДС сидит внутри цены договора по расчетной ставке 22/122.' },
+                        { speaker: 'Ольга', text: 'Ох не приятно, но хоть так' },
+                        { speaker: 'Марина', text: 'Я же говорила, что платить надо)' }
+                    ];
+                } else if (finalId === 'FIN2') {
+                    finalMessages = [
+                        { speaker: 'Вы', text: 'Если налог не уплатили, значит, просто начислим 22% сверху и перечислим в бюджет.' },
+                        { speaker: 'Ольга', text: 'Налоговая получит, и я тоже получу(' },
+                        { speaker: 'Марина', text: 'Ну я же говорила, что все перепроверять нужно' }
+                    ];
+                } else if (finalId === 'FIN3') {
+                    finalMessages = [
+                        { speaker: 'Вы', text: 'Думаю, нужно просто написать в налоговую и спросить, как они считают правильным.' },
+                        { speaker: 'Ольга', text: 'Да, пусть налоговая сама объяснит, что делать.' },
+                        { speaker: 'Марина', text: 'Но налоговая уже написала все. Зачем опять спрашивать?' }
+                    ];
+                } else if (finalId === 'FIN4') {
+                    finalMessages = [
+                        { speaker: 'Вы', text: 'Раз мы применили ставку 0%, значит будем доказывать, что налоговая неправильно начислила НДС.' },
+                        { speaker: 'Ольга', text: 'Да, будем полностью оспаривать доначисление.' },
+                        { speaker: 'Марина', text: 'Давай сначала проверим, имели ли мы право применять ставку 0%. ' }
+                    ];
+                } else if (finalId === 'FIN5') {
+                    finalMessages = [
+                        { speaker: 'Вы', text: 'Давайте просто выберем вариант, при котором компания потеряет меньше денег.' },
+                        { speaker: 'Ольга', text: 'Главное — сохранить деньги компании.' },
+                        { speaker: 'Марина', text: 'Коллеги, так с налоговой споры не решают.' }
+                    ];
+                }
+                addMessages(finalMessages);
+            }
+
+            function showFinal(finalId) {
+                finished = true;
+                const fin = FINALS[finalId];
+                if (!fin) return;
+
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+                sendBtn.classList.add('hidden');
+
+                feedbackContainer.style.display = 'block';
+                feedbackContainer.classList.add('visible');
+                feedbackContainer.innerHTML = `
+                    <div class="fb-title ${fin.type === 'success' ? 'success' : 'error'}">${fin.title}</div>
+                    <div class="fb-body">${fin.body}</div>
+                    <button class="restart-small" id="restartFromFinal">🔄 Пройти заново</button>
+                `;
+
+                document.getElementById('restartFromFinal')?.addEventListener('click', function() {
+                    restart();
+                });
+
+                chatScroll.scrollTop = chatScroll.scrollHeight;
+            }
+
+            function restart() {
+                currentStepId = 'intro';
+                finished = false;
+                pendingOptionId = null;
+                allMessages = [];
+                feedbackContainer.classList.remove('visible');
+                feedbackContainer.style.display = 'none';
+                sendBtn.classList.remove('hidden');
+                sendBtn.style.opacity = '1';
+                renderStep('intro');
+                chatScroll.scrollTop = 0;
+            }
+
+            sendBtn.addEventListener('click', handleSend);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && document.activeElement?.classList.contains('option-btn')) {
+                    handleSend();
+                }
+            });
+
+            renderStep('intro');
+            chatScroll.scrollTop = 0;
+        })();
+    </script>
+</body>
+</html>
