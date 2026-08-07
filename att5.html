@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Налоговый тренажер — НДС при продаже в рассрочку (урок 3)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f2f6fc; font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', sans-serif; padding: 24px 16px; color: #1a3448; }
+        .trainer-container { max-width: 1000px; margin: 0 auto; }
+        .card { background: white; border-radius: 24px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); border: 1px solid rgba(149, 202, 250, 0.4); }
+        .task-header { margin-bottom: 16px; }
+        .task-header p { margin-bottom: 8px; line-height: 1.45; font-size: 0.9rem; }
+        .info-text { background: #f8fbfe; border-left: 4px solid #95CAFA; padding: 14px 18px; border-radius: 16px; margin: 12px 0; font-size: 0.85rem; }
+        .calc-wrapper { overflow-x: auto; margin: 16px 0 8px; border-radius: 16px; }
+        .calc-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; background: white; border-radius: 16px; }
+        .calc-table th, .calc-table td { border: 1px solid #dce8f2; padding: 10px 8px; text-align: left; vertical-align: middle; }
+        .calc-table th { background: #eef3fc; font-weight: 700; color: #1b5a80; font-size: 0.75rem; padding: 10px 8px; width: 50%; }
+        .input-cell input { width: 180px; padding: 8px 10px; border-radius: 12px; border: 1.5px solid #caddf0; text-align: right; font-weight: 500; font-family: inherit; font-size: 0.85rem; background: #fff; transition: all 0.1s; }
+        .input-cell input:focus { outline: none; border-color: #5fa3cf; box-shadow: 0 0 0 2px rgba(95,163,207,0.2); }
+        .input-cell input.correct-input { border-color: #2b7a3e; background-color: #e8f5e9; box-shadow: 0 0 0 1px #2b7a3e; }
+        .input-cell input.error-input { border-color: #e06c6c; background-color: #fff6f5; box-shadow: 0 0 0 1px #e06c6c; }
+        .action-area { display: flex; gap: 16px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .btn { border: none; padding: 8px 24px; border-radius: 40px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .btn-primary { background: #1f6f9b; color: white; }
+        .btn-primary:hover { background: #0e577f; }
+        .btn-secondary { background: #eef2f8; color: #2b5c7c; border: 1px solid #caddf0; }
+        .btn-secondary:hover { background: #e2eaf3; }
+        .feedback-area { margin-top: 16px; padding: 10px 16px; border-radius: 20px; text-align: center; font-weight: 500; font-size: 0.8rem; }
+        .small-note { font-size: 0.65rem; color: #6f8faa; margin-top: 8px; text-align: right; }
+        .lightbulb-hint { background: #fff8e7; border-radius: 20px; margin-top: 16px; padding: 8px 16px; border-left: 4px solid #f5b042; font-size: 0.8rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .lightbulb-icon { font-size: 1.3rem; }
+        .lightbulb-content span { font-weight: 500; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(3px); align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 28px; width: 90%; max-width: 600px; max-height: 85vh; overflow: auto; padding: 20px 24px; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #eef3fc; padding-bottom: 10px; }
+        .modal-header h3 { font-size: 1.3rem; font-weight: 600; color: #1c6f9e; }
+        .close-modal { font-size: 26px; cursor: pointer; color: #8aaec0; }
+        .close-modal:hover { color: #1c6f9e; }
+        .correct-answer { font-size: 0.9rem; line-height: 1.6; }
+        .correct-answer p { margin: 8px 0; }
+        .correct-answer strong { color: #1c6f9e; }
+        @media (max-width: 700px) {
+            .input-cell input { width: 140px; font-size: 0.75rem; }
+            .calc-table th, .calc-table td { padding: 8px 6px; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="trainer-container">
+    <!-- Задание -->
+    <div class="card">
+        <div class="task-header">
+            <p>Компания Ивана Петровича продает автомобиль по договору поставки с рассрочкой (коммерческий кредит, согласно пп. 15 п. 3 ст. 149 НК РФ, проценты по коммерческому кредиту освобождены от НДС).</p>
+            <p><strong>Условия договора:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 8px; font-size: 0.85rem;">
+                <li>Цена автомобиля с НДС (22%) — 3 660 000 руб., НДС = 660 000 руб.</li>
+                <li>Первоначальный взнос — 20%.</li>
+                <li>Остаток погашается равными долями за 3 месяца.</li>
+                <li>Проценты за рассрочку — 132 000 руб. (уплачиваются сверх цены).</li>
+            </ul>
+            <div class="info-text">
+                <strong>Задача:</strong> Рассчитайте первоначальный платеж, сумму по истечении 3-х месяцев с процентами и экономию на НДС (сумму налога, которую не пришлось платить с процентов). Заполните все ячейки в таблице.
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица расчетов -->
+    <div class="card">
+        <div class="calc-wrapper">
+            <table class="calc-table">
+                <tbody>
+                    <tr><th>Первоначальный взнос (руб.)</th>
+                        <td class="input-cell"><input type="text" id="initialPayment" placeholder="______" autocomplete="off"></td>
+                    </tr>
+                    <tr><th>По истечении трех месяцев покупатель перечислил оставшуюся сумму вместе с процентами (руб.)</th>
+                        <td class="input-cell"><input type="text" id="totalWithInterest" placeholder="______" autocomplete="off"></td>
+                    </tr>
+                    <tr><th>Сумма процентов (руб.)</th>
+                        <td class="input-cell"><input type="text" id="interestAmount" placeholder="______" autocomplete="off"></td>
+                    </tr>
+                    <tr><th>НДС с процентов (если бы облагались) (руб.)</th>
+                        <td class="input-cell"><input type="text" id="ndsFromInterest" placeholder="______" autocomplete="off"></td>
+                    </tr>
+                    <tr><th>Экономия на НДС (НДС не уплачивается) (руб.)</th>
+                        <td class="input-cell"><input type="text" id="savings" placeholder="______" autocomplete="off"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="small-note"></div>
+    </div>
+
+    <div class="action-area">
+        <button class="btn btn-primary" id="checkBtn">Проверить</button>
+        <button class="btn btn-secondary" id="resetBtn">Начать заново</button>
+    </div>
+    <div id="globalFeedback" class="feedback-area" style="background: #f8fafd;"></div>
+
+    <div id="lightbulbHint" class="lightbulb-hint" style="display: none;">
+        <div class="lightbulb-icon">💡</div>
+        <div class="lightbulb-content"><span>Смотреть правильный ответ</span></div>
+    </div>
+</div>
+
+<div id="correctModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Правильный ответ</h3><span class="close-modal">&times;</span></div>
+        <div class="correct-answer" id="modalAnswerContainer"></div>
+    </div>
+</div>
+
+<script>
+    // ЭТАЛОННЫЕ ЗНАЧЕНИЯ
+    const correctValues = {
+        initialPayment: 732000,
+        totalWithInterest: 3060000,
+        interestAmount: 132000,
+        ndsFromInterest: 23803.28,
+        savings: 23803.28
+    };
+
+    const fields = {
+        initialPayment: document.getElementById('initialPayment'),
+        totalWithInterest: document.getElementById('totalWithInterest'),
+        interestAmount: document.getElementById('interestAmount'),
+        ndsFromInterest: document.getElementById('ndsFromInterest'),
+        savings: document.getElementById('savings')
+    };
+
+    function saveLessonDraft() {
+        try {
+            const draft = {};
+            for (let id in fields) {
+                if (fields[id]) draft[id] = fields[id].value;
+            }
+            localStorage.setItem('tax_trainer_lesson3_draft', JSON.stringify(draft));
+        } catch(e) {
+            console.warn('Сохранение черновика недоступно');
+        }
+    }
+
+    function loadLessonDraft() {
+        try {
+            const saved = localStorage.getItem('tax_trainer_lesson3_draft');
+            if (saved) {
+                const data = JSON.parse(saved);
+                for (let id in data) {
+                    if (fields[id]) fields[id].value = data[id];
+                }
+            }
+        } catch(e) {
+            console.warn('Загрузка черновика недоступна');
+        }
+    }
+
+    function isAllFieldsFilled() {
+        for (let id in fields) {
+            if (fields[id] && fields[id].value.trim() === '') return false;
+        }
+        return true;
+    }
+
+    function parseNumber(value) {
+        // Улучшенная очистка: удаляем обычные и неразрывные пробелы (\u00A0, \u202F)
+        let cleaned = value.replace(/[\s\u00A0\u202F]/g, '').replace(/,/g, '.');
+        let num = parseFloat(cleaned);
+        if (isNaN(num)) return NaN;
+        return Math.round(num * 100) / 100;
+    }
+
+    function highlightFields() {
+        for (let [key, correctVal] of Object.entries(correctValues)) {
+            const field = fields[key];
+            if (!field) continue;
+            const val = parseNumber(field.value);
+            field.classList.remove('correct-input', 'error-input');
+            if (!isNaN(val) && Math.abs(val - correctVal) <= 0.5) {
+                field.classList.add('correct-input');
+            } else if (field.value.trim() !== '') {
+                field.classList.add('error-input');
+            }
+        }
+    }
+
+    function isAllCorrect() {
+        for (let [key, correctVal] of Object.entries(correctValues)) {
+            const field = fields[key];
+            if (!field) continue;
+            const val = parseNumber(field.value);
+            if (isNaN(val) || Math.abs(val - correctVal) > 0.5) return false;
+        }
+        return true;
+    }
+
+    function checkSolution() {
+        const allFieldsFilled = isAllFieldsFilled();
+        const allOk = isAllCorrect();
+        const fbDiv = document.getElementById('globalFeedback');
+        const bulb = document.getElementById('lightbulbHint');
+        
+        highlightFields();
+
+        if (!allFieldsFilled || !allOk) {
+            fbDiv.innerHTML = 'Вы заполнили показатели неверно (или заполнили не все поля).';
+            fbDiv.style.background = '#ffe6e2';
+            fbDiv.style.color = '#ac3c2f';
+            bulb.style.display = 'flex';
+            return;
+        }
+
+        fbDiv.innerHTML = 'Поздравляю! Вы рассчитали все верно. Компания сэкономила 23 803,28 руб.';
+        fbDiv.style.background = '#dff0e3';
+        fbDiv.style.color = '#1c6f2f';
+        bulb.style.display = 'none';
+
+        saveLessonDraft();
+    }
+
+    function resetEverything() {
+        for (let id in fields) {
+            if (fields[id]) {
+                fields[id].value = '';
+                fields[id].classList.remove('correct-input', 'error-input');
+            }
+        }
+        const fbDiv = document.getElementById('globalFeedback');
+        fbDiv.innerHTML = '';
+        fbDiv.style.background = '#f8fafd';
+        document.getElementById('lightbulbHint').style.display = 'none';
+        
+        try {
+            localStorage.removeItem('tax_trainer_lesson3_draft');
+        } catch(e) {}
+    }
+
+    function renderCorrectAnswer() {
+        const container = document.getElementById('modalAnswerContainer');
+        let html = `
+            <div style="background:#eef3fc; border-radius:16px; padding:16px;">
+                <p><strong>Правильные ответы:</strong></p>
+                <p>• Первоначальный взнос: <strong>${correctValues.initialPayment.toLocaleString('ru-RU')} руб.</strong><br>
+                   <span style="font-size:0.7rem; color:#527a99;">(3 660 000 × 20% = 732 000 руб.)</span></p>
+                <p>• Сумма через 3 месяца с процентами: <strong>${correctValues.totalWithInterest.toLocaleString('ru-RU')} руб.</strong><br>
+                   <span style="font-size:0.7rem; color:#527a99;">(Остаток: 3 660 000 - 732 000 = 2 928 000 руб. + проценты 132 000 = 3 060 000 руб.)</span></p>
+                <p>• Сумма процентов: <strong>${correctValues.interestAmount.toLocaleString('ru-RU')} руб.</strong></p>
+                <p>• НДС с процентов (если бы облагались): <strong>${correctValues.ndsFromInterest.toLocaleString('ru-RU')} руб.</strong><br>
+                   <span style="font-size:0.7rem; color:#527a99;">(132 000 × 22 / 122 = 23 803,28 руб.)</span></p>
+                <p>• Экономия на НДС: <strong>${correctValues.savings.toLocaleString('ru-RU')} руб.</strong><br>
+                   <span style="font-size:0.7rem; color:#527a99;">(НДС не уплачивается благодаря льготе по пп. 15 п. 3 ст. 149 НК РФ)</span></p>
+                <hr style="margin: 12px 0;">
+                <p><strong>Итог:</strong> Компания сэкономила на НДС <strong>${correctValues.savings.toLocaleString('ru-RU')} руб.</strong> за счет того, что проценты по коммерческому кредиту освобождены от налогообложения.</p>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    function openModal() {
+        renderCorrectAnswer();
+        document.getElementById('correctModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('correctModal').style.display = 'none';
+    }
+
+    function attachAutoSave() {
+        for (let id in fields) {
+            if (fields[id]) {
+                fields[id].addEventListener('input', function() {
+                    saveLessonDraft();
+                    this.classList.remove('correct-input', 'error-input');
+                });
+            }
+        }
+    }
+
+    // Инициализация
+    loadLessonDraft();
+    attachAutoSave();
+
+    // Обработчики событий
+    document.getElementById('checkBtn').addEventListener('click', checkSolution);
+    document.getElementById('resetBtn').addEventListener('click', resetEverything);
+    document.getElementById('lightbulbHint').addEventListener('click', openModal);
+    document.querySelector('.close-modal').addEventListener('click', closeModal);
+    document.getElementById('correctModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+</body>
+</html>
