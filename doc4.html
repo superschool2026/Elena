@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажёр: ошибки в договоре поставки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f8fc;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 16px 36px -12px rgba(0, 20, 40, 0.15);
+            padding: 1.8rem 2rem;
+            position: relative;
+        }
+
+        .lightbulb-wrapper {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 0.5rem;
+        }
+
+        .lightbulb-btn {
+            background: #f5faff;
+            border: 2px solid #95CAFA;
+            border-radius: 60px;
+            padding: 0.3rem 1rem 0.3rem 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 450;
+            color: #1b4468;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 3px 10px rgba(149, 202, 250, 0.2);
+            font-family: inherit;
+        }
+
+        .lightbulb-btn:hover {
+            background: #e7f0fd;
+            border-color: #7bb8e8;
+            transform: scale(1.02);
+        }
+
+        .lightbulb-btn .icon {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .lightbulb-btn .badge {
+            background: #1f6b9e;
+            color: white;
+            border-radius: 40px;
+            padding: 0.02rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .lightbulb-btn .badge.success {
+            background: #2c9b5e;
+        }
+
+        .lightbulb-btn .badge.warning {
+            background: #d45a5a;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 28px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 80vh;
+            padding: 1.6rem 2rem;
+            box-shadow: 0 30px 60px rgba(0, 20, 40, 0.3);
+            overflow-y: auto;
+            position: relative;
+            animation: modalFade 0.25s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.7rem;
+            right: 1.2rem;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: #6b8baa;
+            cursor: pointer;
+            transition: 0.15s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #1f4468;
+            transform: rotate(90deg);
+        }
+
+        .modal h2 {
+            font-weight: 400;
+            font-size: 1.3rem;
+            color: #0b1e33;
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid #eef3f9;
+            padding-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal li {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #eef3f9;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .modal li:last-child {
+            border-bottom: none;
+        }
+
+        .modal .status-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.02rem 0.5rem;
+            border-radius: 40px;
+            margin-left: 0.2rem;
+        }
+
+        .modal .status-badge.ok {
+            background: #e3f5e9;
+            color: #1b7a47;
+        }
+
+        .modal .status-badge.miss {
+            background: #fde8e8;
+            color: #a53131;
+        }
+
+        .modal .explanation-text {
+            display: block;
+            margin-top: 0.1rem;
+            font-size: 0.82rem;
+            opacity: 0.8;
+            padding-left: 0.7rem;
+            border-left: 3px solid #95CAFA;
+        }
+
+        .modal .success-text {
+            color: #1b7a47;
+            font-size: 1rem;
+            font-weight: 450;
+        }
+
+        .modal .code-word {
+            background: #f0f7fe;
+            border: 2px solid #95CAFA;
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            margin-top: 0.8rem;
+            text-align: center;
+        }
+
+        .modal .code-word .label {
+            font-size: 0.85rem;
+            color: #1b4468;
+            font-weight: 400;
+        }
+
+        .modal .code-word .word {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #1f6b9e;
+            letter-spacing: 2px;
+            margin-top: 0.2rem;
+        }
+
+        .modal .code-word .hint {
+            font-size: 0.8rem;
+            color: #4b6a8b;
+            margin-top: 0.3rem;
+            font-weight: 350;
+        }
+
+        .contract {
+            background: #fbfdff;
+            padding: 0.1rem 0;
+            border-radius: 20px;
+        }
+
+        .contract-text {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #142b44;
+            font-weight: 350;
+        }
+
+        .contract-text strong {
+            font-weight: 550;
+            color: #0f2b44;
+        }
+
+        .contract-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 550;
+            color: #0f2b44;
+            margin-bottom: 0.2rem;
+        }
+
+        .contract-right {
+            text-align: right;
+            font-size: 0.82rem;
+        }
+
+        .contract-full {
+            text-align: left;
+            width: 100%;
+            font-size: 0.84rem;
+        }
+
+        .clause-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.2rem 0.4rem 0.2rem 0.6rem;
+            margin: 0.1rem 0;
+            border-radius: 10px;
+            border: 1.5px solid #95CAFA;
+            background: #fafdff;
+            transition: background 0.15s, border-color 0.2s;
+            flex-wrap: wrap;
+        }
+
+        .clause-row.correct-highlight {
+            border-color: #2c9b5e;
+            background: #f2fbf6;
+        }
+
+        .clause-row.wrong-highlight {
+            border-color: #d45a5a;
+            background: #fff5f5;
+        }
+
+        .clause-row.neutral-highlight {
+            border-color: #95CAFA;
+            background: #fafdff;
+        }
+
+        .clause-text {
+            flex: 1;
+            min-width: 160px;
+            font-size: 0.83rem;
+        }
+
+        .clause-check {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #1d3b57;
+            cursor: pointer;
+            padding: 0.05rem 0.5rem 0.05rem 0.3rem;
+            border-radius: 40px;
+            border: 1px solid #d3e2f5;
+            background: #f3f8ff;
+            transition: 0.1s ease;
+        }
+
+        .clause-check:hover {
+            background: #e7f0fd;
+            border-color: #95CAFA;
+        }
+
+        .clause-check input[type="checkbox"] {
+            accent-color: #1f6b9e;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .clause-number {
+            font-weight: 500;
+            color: #1f5a7e;
+            margin-right: 0.15rem;
+        }
+
+        .action-bar {
+            margin: 1.2rem 0 0.2rem 0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1.5px solid #95CAFA;
+            padding: 0.4rem 1.8rem;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 450;
+            color: #1b4468;
+            cursor: pointer;
+            transition: 0.15s;
+            letter-spacing: 0.2px;
+            background: #f5faff;
+            box-shadow: 0 2px 4px rgba(0,30,50,0.02);
+        }
+
+        .btn-primary {
+            background: #1f6b9e;
+            border-color: #1f6b9e;
+            color: white;
+            box-shadow: 0 4px 8px -4px rgba(26, 80, 128, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #165683;
+            border-color: #165683;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #b4cfe0;
+            color: #1f4f73;
+        }
+
+        .btn-secondary:hover {
+            background: #f2f8ff;
+            border-color: #95CAFA;
+        }
+
+        .section-title {
+            font-weight: 550;
+            color: #0f2b44;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: 1.2rem; }
+            .clause-row { flex-direction: column; align-items: stretch; }
+            .clause-check { align-self: flex-start; }
+            .modal { padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="lightbulb-wrapper">
+        <button class="lightbulb-btn" id="lightbulbBtn" style="display:none;">
+            <span class="icon">💡</span>
+            <span id="lightbulbText">Разберите ошибки</span>
+            <span class="badge" id="lightbulbBadge">0</span>
+        </button>
+    </div>
+
+    <div class="contract">
+        <div class="contract-text">
+            <div class="contract-title"><strong>Договор поставки</strong></div>
+            <div class="contract-right">г. Краснодар</div>
+            <div class="contract-right">«10» августа 20ХХ г.</div>
+            <br>
+            <div class="contract-full">
+                ООО «Альфа», именуемое в дальнейшем <strong>«Поставщик»</strong>, в лице генерального директора Иванова И.И., действующего на основании Устава, с одной стороны, и ООО «Бета», именуемое в дальнейшем <strong>«Покупатель»</strong>, в лице директора Петрова П.П., действующего на основании Устава, с другой стороны, заключили настоящий договор о нижеследующем.
+            </div>
+            <br>
+
+            <span class="section-title">1. Предмет договора</span><br>
+
+            <div class="clause-row neutral-highlight" id="clause-1-1">
+                <span class="clause-text">
+                    <span class="clause-number">1.1.</span> Поставщик обязуется передать в собственность Покупателя <strong>строительные материалы</strong>, а Покупатель обязуется принять и оплатить эти материалы.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-1-1"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-1-2">
+                <span class="clause-text">
+                    <span class="clause-number">1.2.</span> Конкретное наименование, количество, ассортимент, технические характеристики и цена строительных материалов определяются Поставщиком перед каждой отгрузкой. Спецификации, заявки и иные документы, содержащие характеристики товара, стороны не оформляют.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-1-2"> Есть ошибка
+                </label>
+            </div>
+
+            <br><span class="section-title">2. Порядок поставки</span><br>
+
+            <div class="clause-row neutral-highlight" id="clause-2-1">
+                <span class="clause-text">
+                    <span class="clause-number">2.1.</span> Товар передается Покупателю на условиях самовывоза со склада Поставщика.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-2-1"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-2-2">
+                <span class="clause-text">
+                    <span class="clause-number">2.2.</span> Покупатель самостоятельно организует погрузку и вывоз товара. Дата готовности товара к передаче сообщается Поставщиком по телефону.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-2-2"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-2-3">
+                <span class="clause-text">
+                    <span class="clause-number">2.3.</span> Право собственности и риск случайной гибели товара переходят к Покупателю с момента его фактической передачи.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-2-3"> Есть ошибка
+                </label>
+            </div>
+
+            <br><span class="section-title">3. Качество и документы</span><br>
+
+            <div class="clause-row neutral-highlight" id="clause-3-1">
+                <span class="clause-text">
+                    <span class="clause-number">3.1.</span> Товар должен соответствовать требованиям, обычно предъявляемым к товарам такого рода.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-3-1"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-3-2">
+                <span class="clause-text">
+                    <span class="clause-number">3.2.</span> Покупатель подтверждает, что не требует от Поставщика предоставления сертификатов соответствия, паспортов качества, деклараций и иных документов на товар.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-3-2"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-3-3">
+                <span class="clause-text">
+                    <span class="clause-number">3.3.</span> Приемка товара по количеству производится в момент его получения Покупателем.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-3-3"> Есть ошибка
+                </label>
+            </div>
+
+            <br><span class="section-title">4. Цена и порядок оплаты</span><br>
+
+            <div class="clause-row neutral-highlight" id="clause-4-1">
+                <span class="clause-text">
+                    <span class="clause-number">4.1.</span> Покупатель оплачивает товар в течение 10 рабочих дней после его получения.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-4-1"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-4-2">
+                <span class="clause-text">
+                    <span class="clause-number">4.2.</span> Оплата производится на основании счета, выставленного Поставщиком.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-4-2"> Есть ошибка
+                </label>
+            </div>
+
+            <br><span class="section-title">5. Ответственность сторон</span><br>
+
+            <div class="clause-row neutral-highlight" id="clause-5-1">
+                <span class="clause-text">
+                    <span class="clause-number">5.1.</span> За нарушение срока оплаты Покупатель уплачивает Поставщику неустойку в размере 0,1 процента суммы задолженности за каждый день просрочки.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-5-1"> Есть ошибка
+                </label>
+            </div>
+
+            <div class="clause-row neutral-highlight" id="clause-5-2">
+                <span class="clause-text">
+                    <span class="clause-number">5.2.</span> За нарушение срока передачи товара Поставщик уплачивает Покупателю неустойку в размере 0,1 процента стоимости непереданного товара за каждый день просрочки.
+                </span>
+                <label class="clause-check">
+                    <input type="checkbox" name="clause-5-2"> Есть ошибка
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="btn btn-primary" id="checkBtn">🔍 Проверить</button>
+        <button class="btn btn-secondary" id="resetBtn" style="display:none;">↻ Начать заново</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="modal-close" id="modalClose">✕</button>
+        <h2 id="modalTitle">💡 Разберите ошибки</h2>
+        <div id="modalContent">
+            <ul id="modalList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const correctAnswers = {
+            'clause-1-1': true,
+            'clause-1-2': true,
+            'clause-2-1': true,
+            'clause-2-2': false,
+            'clause-2-3': false,
+            'clause-3-1': false,
+            'clause-3-2': true,
+            'clause-3-3': false,
+            'clause-4-1': false,
+            'clause-4-2': false,
+            'clause-5-1': false,
+            'clause-5-2': false
+        };
+
+        const errorExplanations = {
+            'clause-1-1': 'В пункте 1.1 указано только общее название «строительные материалы» без конкретики.',
+            'clause-1-2': 'В пункте 1.2 отсутствуют спецификации и заявки, невозможно определить точные характеристики и цену товара.',
+            'clause-2-1': 'В пункте 2.1 не указан адрес склада, невозможно определить точное место передачи товара.',
+            'clause-3-2': 'В пункте 3.2 Покупатель отказался от сертификатов и паспортов качества, невозможно подтвердить соответствие товара.'
+        };
+
+        const errorClauseIds = ['clause-1-1', 'clause-1-2', 'clause-2-1', 'clause-3-2'];
+        const allClauseIds = Object.keys(correctAnswers);
+
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lightbulbBtn = document.getElementById('lightbulbBtn');
+        const lightbulbBadge = document.getElementById('lightbulbBadge');
+        const lightbulbText = document.getElementById('lightbulbText');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const modalList = document.getElementById('modalList');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+
+        let lastResults = null;
+        let allFoundFlag = false;
+
+        function resetAll() {
+            allClauseIds.forEach(id => {
+                const checkbox = document.querySelector(`input[name="${id}"]`);
+                if (checkbox) checkbox.checked = false;
+                const block = document.getElementById(id);
+                block.classList.remove('correct-highlight', 'wrong-highlight');
+                block.classList.add('neutral-highlight');
+            });
+            lightbulbBtn.style.display = 'none';
+            modalOverlay.classList.remove('active');
+            checkBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'none';
+            checkBtn.textContent = '🔍 Проверить';
+            lastResults = null;
+            allFoundFlag = false;
+        }
+
+        function buildModalContent() {
+            if (!lastResults) return;
+
+            let html = '';
+            let allFound = true;
+
+            errorClauseIds.forEach(id => {
+                const checkbox = document.querySelector(`input[name="${id}"]`);
+                const isChecked = checkbox ? checkbox.checked : false;
+                const isCorrect = (isChecked === true);
+
+                let statusText = '';
+                let statusClass = '';
+                if (isCorrect) {
+                    statusText = '✅';
+                    statusClass = 'ok';
+                } else {
+                    statusText = '❌';
+                    statusClass = 'miss';
+                    allFound = false;
+                }
+
+                const explanation = errorExplanations[id] || '';
+                html += `<li>
+                    <strong>${id.replace('clause-', 'Пункт ')}</strong>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <span class="explanation-text">${explanation}</span>
+                </li>`;
+            });
+
+            if (allFound) {
+                html = `<li class="success-text">✅ Молодец, вы нашли все ошибки!</li>` + html;
+                html += `
+                    <li style="border-bottom: none; padding-top: 0.8rem;">
+                        <div class="code-word">
+                            <div class="label">🔑 Ваше первое кодовое слово:</div>
+                            <div class="word">ОТСУТСТВИЕ</div>
+                            <div class="hint">Обязательно сохраните эту улику. Соберите фразу целиком, чтобы получить доступ к финальному испытанию и забрать готовые безопасные шаблоны.</div>
+                        </div>
+                    </li>
+                `;
+                modalTitle.innerHTML = '🎉 Отлично!';
+            } else {
+                modalTitle.innerHTML = '💡 Разберите ошибки';
+            }
+
+            modalList.innerHTML = html;
+            allFoundFlag = allFound;
+        }
+
+        function checkAnswers() {
+            allClauseIds.forEach(id => {
+                const checkbox = document.querySelector(`input[name="${id}"]`);
+                const isChecked = checkbox ? checkbox.checked : false;
+                const shouldBeError = correctAnswers[id];
+                
+                const block = document.getElementById(id);
+                block.classList.remove('correct-highlight', 'wrong-highlight', 'neutral-highlight');
+
+                if (shouldBeError && isChecked) {
+                    block.classList.add('correct-highlight');
+                } else if (!shouldBeError && isChecked) {
+                    block.classList.add('wrong-highlight');
+                } else {
+                    block.classList.add('neutral-highlight');
+                }
+            });
+
+            let found = 0;
+            let total = errorClauseIds.length;
+
+            errorClauseIds.forEach(id => {
+                const checkbox = document.querySelector(`input[name="${id}"]`);
+                if (checkbox && checkbox.checked) found++;
+            });
+
+            const allFound = (found === total);
+            const badge = lightbulbBadge;
+            
+            if (allFound) {
+                badge.textContent = '✓';
+                badge.className = 'badge success';
+                lightbulbText.textContent = 'Молодец, вы нашли все ошибки!';
+            } else {
+                badge.textContent = `${found}/${total}`;
+                badge.className = 'badge warning';
+                lightbulbText.textContent = 'Разберите ошибки';
+            }
+
+            lightbulbBtn.style.display = 'flex';
+            lastResults = { found, total };
+            allFoundFlag = allFound;
+
+            checkBtn.style.display = 'none';
+            resetBtn.style.display = 'inline-block';
+            resetBtn.textContent = '↻ Начать заново';
+        }
+
+        function openModal() {
+            if (lastResults) {
+                buildModalContent();
+                modalOverlay.classList.add('active');
+            }
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        checkBtn.addEventListener('click', checkAnswers);
+
+        resetBtn.addEventListener('click', function() {
+            resetAll();
+        });
+
+        lightbulbBtn.addEventListener('click', openModal);
+
+        modalClose.addEventListener('click', closeModal);
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.querySelectorAll('.clause-check input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (lightbulbBtn.style.display !== 'none') {
+                    lightbulbBtn.style.display = 'none';
+                    modalOverlay.classList.remove('active');
+                }
+                if (checkBtn.style.display === 'none') {
+                    checkBtn.style.display = 'inline-block';
+                    resetBtn.style.display = 'none';
+                    checkBtn.textContent = '🔍 Проверить';
+                }
+                const parentBlock = this.closest('.clause-row');
+                if (parentBlock) {
+                    parentBlock.classList.remove('correct-highlight', 'wrong-highlight');
+                    parentBlock.classList.add('neutral-highlight');
+                }
+                lastResults = null;
+                allFoundFlag = false;
+            });
+        });
+
+        resetAll();
+    })();
+</script>
+
+</body>
+</html>
