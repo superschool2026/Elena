@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Тренажёр: найди ошибки в договоре</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #eef2f6;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      padding: 0.8rem;
+      color: #1a2c3e;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .document-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      overflow: hidden;
+      margin-bottom: 0.8rem;
+    }
+    .document-body {
+      padding: 0.8rem 1.2rem;
+      line-height: 1.35;
+      font-size: 0.8rem;
+      background: #ffffff;
+    }
+    #selectableText {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.4;
+      font-size: 0.8rem;
+      user-select: text;
+    }
+    .selection-highlight {
+      background-color: #5a9eff;
+      color: white;
+      border-radius: 3px;
+      padding: 0 1px;
+      cursor: default;
+    }
+    .mark-correct {
+      background-color: #2e7d54;
+      color: white;
+      border-radius: 3px;
+      padding: 0 1px;
+    }
+    .mark-wrong {
+      background-color: #d9534f;
+      color: white;
+      border-radius: 3px;
+      padding: 0 1px;
+    }
+    .doc-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.2px;
+    }
+    .action-panel {
+      background: white;
+      border-radius: 30px;
+      padding: 0.4rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .btn-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      font-family: inherit;
+      font-weight: 500;
+      border: none;
+      padding: 0.3rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      background: #f0f4fa;
+      color: #1f4d73;
+      transition: all 0.15s;
+    }
+    button.primary {
+      background: #1f6e9c;
+      color: white;
+    }
+    button.primary:hover {
+      background: #0f5a84;
+    }
+    button.secondary {
+      background: #eef3fc;
+      border: 1px solid #cde2f5;
+    }
+    .results-panel {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 0.6rem 1rem;
+      margin-top: 0.6rem;
+      border-left: 3px solid #5a9eff;
+      display: none;
+    }
+    .mistake-feedback {
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #1a2c3e;
+    }
+    .summary-badge {
+      background: #eef3fc;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.78rem;
+      display: inline-block;
+      margin-bottom: 0.3rem;
+    }
+    .detail-btn {
+      background: #eef3fc;
+      border: 1px solid #b3d4f0;
+      padding: 0.15rem 1rem;
+      border-radius: 30px;
+      font-size: 0.72rem;
+      margin-top: 0.2rem;
+    }
+    .detail-btn:hover {
+      background: #dce8f5;
+    }
+
+    /* Модальное окно */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: white;
+      border-radius: 18px;
+      max-width: 680px;
+      width: 92%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      position: relative;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      0% { transform: scale(0.96); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      font-size: 1.6rem;
+      font-weight: 300;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
+      padding: 0 0.3rem;
+      line-height: 1;
+      z-index: 10;
+    }
+    .modal-close:hover {
+      color: #333;
+    }
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f4d73;
+      margin-bottom: 0.8rem;
+      padding-right: 2rem;
+    }
+    .modal-body {
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .modal-body .error-item {
+      margin-bottom: 0.4rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 8px;
+    }
+    .modal-body .error-correct {
+      background: #e8f5e9;
+      border-left: 3px solid #4caf50;
+    }
+    .modal-body .error-wrong {
+      background: #ffebee;
+      border-left: 3px solid #f44336;
+    }
+    .modal-body .error-phrase {
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+    .modal-body .error-desc {
+      color: #2c3e50;
+      font-size: 0.78rem;
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    .modal-body .summary-badge {
+      font-size: 0.82rem;
+      margin-bottom: 0.5rem;
+    }
+    .code-word-box {
+      background: #fef9e7;
+      border: 2px solid #f1c40f;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      margin-top: 0.8rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #7d6608;
+      animation: pulse-gold 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-gold {
+      0% { border-color: #f1c40f; background: #fef9e7; }
+      100% { border-color: #d4a800; background: #fcf3d0; }
+    }
+    .code-word-box small {
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: #5a4a1a;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    @media (max-width: 550px) {
+      .document-body { padding: 0.6rem 0.8rem; }
+      #selectableText { font-size: 0.72rem; }
+      button { padding: 0.25rem 0.8rem; font-size: 0.68rem; }
+      .modal-box { padding: 0.8rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="document-card">
+    <div class="document-body">
+      <div id="selectableText"></div>
+    </div>
+  </div>
+
+  <div class="action-panel">
+    <div class="btn-group">
+      <button id="checkBtn" class="primary">✓ Проверить</button>
+      <button id="resetBtn" class="secondary">↺ Сбросить</button>
+    </div>
+  </div>
+
+  <div id="resultsArea" class="results-panel">
+    <div id="feedbackMessage" class="mistake-feedback"></div>
+  </div>
+</div>
+
+<!-- Модальное окно для разбора -->
+<div id="modalOverlay" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="modalCloseBtn">&times;</button>
+    <div class="modal-title" id="modalTitle">📋 Разбор ошибок</div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  const contractText = `ДОГОВОР АРЕНДЫ (фрагмент)
+
+1. Предмет договора
+
+1.1. Арендодатель передает, а Арендатор принимает во временное владение
+и пользование нежилое помещение примерной площадью 100 кв. м,
+расположенное в административном здании по адресу: г. Краснодар, ул.
+Центральная, д. 15.
+
+1.2. Арендодатель подтверждает, что имеет право сдавать помещение в
+аренду на основании имеющихся документов.
+
+2. Цель использования
+
+2.1. Арендатор вправе использовать помещение по своему усмотрению при
+соблюдении требований законодательства.
+
+3. Обременения
+
+3.1. Помещение не обременено правами третьих лиц, за исключением
+обременений, которые могут иметь место на дату заключения договора.
+
+4. Арендная плата
+
+4.1. Размер арендной платы определяется сторонами по договоренности и
+указывается в счетах, выставляемых Арендодателем.`;
+
+  const errorPhrases = [
+    {
+      id: 1,
+      phrase: "примерной площадью",
+      description: "«Примерной площадью» — площадь объекта указывайте точно, желательно с кадастровым номером и ссылкой на выписку из ЕГРН."
+    },
+    {
+      id: 2,
+      phrase: "на основании имеющихся документов",
+      description: "«На основании имеющихся документов» — неясно, какие именно документы подтверждают право арендодателя. Укажите выписку из ЕГРН, договор аренды или согласие собственника."
+    },
+    {
+      id: 3,
+      phrase: "по своему усмотрению",
+      description: "«По своему усмотрению» — формулировка позволяет использовать помещение практически для любых целей. Следует конкретно указать разрешенное назначение, например: «помещение используется Арендатором исключительно для хранения строительных материалов и организации складской деятельности»."
+    },
+    {
+      id: 4,
+      phrase: "могут иметь место",
+      description: "«Могут иметь место» — условие не содержит точной информации об обременениях. Укажите, что объект не имеет конкретных обременений, либо перечислите существующие ограничения."
+    },
+    {
+      id: 5,
+      phrase: "по договоренности",
+      description: "«По договоренности» — размер арендной платы не согласовали. Необходимо указать конкретную сумму, периодичность оплаты, порядок изменения платы и дополнительные расходы."
+    }
+  ];
+
+  let selectedSpans = [];
+  let lastFoundErrors = new Set();
+  let lastAllFound = false;
+
+  function formatDocument(text) {
+    let lines = text.split('\n');
+    let htmlLines = [];
+    for (let line of lines) {
+      if (line.trim() === '') {
+        htmlLines.push('<br>');
+        continue;
+      }
+      if (line.match(/^\d+\.\s*[А-Я]/) || line.match(/^\d+\.\d+\./)) {
+        htmlLines.push(`<div style="margin-top:0.2rem;">${escapeHtml(line)}</div>`);
+      } else if (line.includes('ДОГОВОР АРЕНДЫ')) {
+        htmlLines.push(`<div class="doc-title">${escapeHtml(line)}</div>`);
+      } else {
+        htmlLines.push(`<div>${escapeHtml(line)}</div>`);
+      }
+    }
+    return htmlLines.join('');
+  }
+
+  function handleTextSelection() {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    const selectedText = range.toString().trim();
+    if (selectedText.length === 0) return;
+
+    const container = document.getElementById('selectableText');
+    let node = range.commonAncestorContainer;
+    let inside = false;
+    while (node) {
+      if (node === container || (node.parentNode === container)) { inside = true; break; }
+      node = node.parentNode;
+    }
+    if (!inside) return;
+
+    try {
+      const span = document.createElement('span');
+      span.className = 'selection-highlight';
+      span.textContent = selectedText;
+      span.setAttribute('data-original', selectedText);
+      range.deleteContents();
+      range.insertNode(span);
+      selectedSpans.push(span);
+      sel.removeAllRanges();
+    } catch(e) {}
+  }
+
+  function resetAll() {
+    for (let span of selectedSpans) {
+      if (span && span.parentNode) {
+        const textNode = document.createTextNode(span.textContent);
+        span.parentNode.replaceChild(textNode, span);
+      }
+    }
+    selectedSpans = [];
+    const container = document.getElementById('selectableText');
+    container.innerHTML = formatDocument(contractText);
+    document.getElementById('resultsArea').style.display = 'none';
+    lastFoundErrors = new Set();
+    lastAllFound = false;
+  }
+
+  function evaluateMistakes() {
+    const foundErrors = new Set();
+
+    for (let span of selectedSpans) {
+      const text = span.textContent.trim();
+      const words = text.split(/\s+/);
+      const wordCount = words.length;
+
+      let matched = null;
+      let isCorrect = false;
+
+      for (let err of errorPhrases) {
+        const targetWords = err.phrase.split(/\s+/);
+        const targetLen = targetWords.length;
+        const textLower = text.toLowerCase();
+        const phraseLower = err.phrase.toLowerCase();
+
+        if (textLower.includes(phraseLower)) {
+          const maxAllowed = targetLen + 4;
+          const minAllowed = targetLen;
+          if (wordCount >= minAllowed && wordCount <= maxAllowed) {
+            matched = err;
+            isCorrect = true;
+            break;
+          } else {
+            matched = null;
+            isCorrect = false;
+            break;
+          }
+        }
+      }
+
+      if (matched && isCorrect) {
+        span.classList.remove('selection-highlight');
+        span.classList.add('mark-correct');
+        foundErrors.add(matched.id);
+      } else {
+        span.classList.remove('selection-highlight');
+        span.classList.add('mark-wrong');
+      }
+    }
+
+    const foundCount = foundErrors.size;
+    const total = errorPhrases.length;
+    const allFound = (foundCount === total);
+
+    lastFoundErrors = foundErrors;
+    lastAllFound = allFound;
+
+    const resultsDiv = document.getElementById('resultsArea');
+    const feedbackDiv = document.getElementById('feedbackMessage');
+
+    let html = `<div class="summary-badge">🏆 Найдено: ${foundCount} из ${total}</div>`;
+    html += `<div style="margin-top:0.2rem;"><button id="detailToggleBtn" class="detail-btn">📋 Разобрать ошибки</button></div>`;
+    feedbackDiv.innerHTML = html;
+    resultsDiv.style.display = 'block';
+
+    document.getElementById('detailToggleBtn')?.addEventListener('click', function() {
+      openModal();
+    });
+  }
+
+  function openModal() {
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalBody = document.getElementById('modalBody');
+    const foundErrors = lastFoundErrors;
+    const allFound = lastAllFound;
+
+    let html = `<div class="summary-badge">📋 Разбор по фразам</div>`;
+    for (let err of errorPhrases) {
+      const isFound = foundErrors.has(err.id);
+      if (isFound) {
+        html += `<div class="error-item error-correct">
+          <div class="error-phrase">✅ «${err.phrase}»</div>
+          <div class="error-desc">${err.description}</div>
+        </div>`;
+      } else {
+        html += `<div class="error-item error-wrong">
+          <div class="error-phrase">❌ «${err.phrase}»</div>
+          <div class="error-desc">${err.description}</div>
+        </div>`;
+      }
+    }
+
+    // Если все ошибки найдены — показываем кодовое слово
+    if (allFound) {
+      html += `
+        <div class="code-word-box">
+          🗝️ Ваше второе кодовое слово: <strong>ДЕЛОВОЙ</strong>
+          <small>Сохраните эту улику. Соберите все кодовые слова в одну фразу, чтобы открыть финальное испытание и получить готовые безопасные шаблоны.</small>
+        </div>
+      `;
+    }
+
+    modalBody.innerHTML = html;
+    modalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function init() {
+    const container = document.getElementById('selectableText');
+    container.innerHTML = formatDocument(contractText);
+
+    document.addEventListener('mouseup', function(e) {
+      if (e.target.closest('button')) return;
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+        let node = sel.anchorNode;
+        let inside = false;
+        while (node) {
+          if (node === container || (node.parentNode === container)) { inside = true; break; }
+          node = node.parentNode;
+        }
+        if (inside) handleTextSelection();
+      }
+    });
+
+    document.getElementById('checkBtn').addEventListener('click', evaluateMistakes);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    // Закрытие модального окна
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  init();
+</script>
+</body>
+</html>
