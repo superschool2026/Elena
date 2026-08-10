@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Памятка · Договор займа</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f5f8fe;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem 1rem;
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      color: #142433;
+    }
+
+    .container {
+      max-width: 780px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 40px;
+      box-shadow: 0 20px 50px -16px rgba(0, 20, 40, 0.10);
+      padding: 1.8rem 1.8rem 2.2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.6rem;
+      border-bottom: 2px solid rgba(149, 202, 250, 0.18);
+      padding-bottom: 0.9rem;
+    }
+
+    .header h1 {
+      font-weight: 500;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+      color: #0b1f31;
+    }
+
+    .sub-note {
+      background: #f0f7fe;
+      padding: 0.2rem 1rem;
+      border-radius: 60px;
+      font-size: 0.7rem;
+      color: #1e3b58;
+      border: 1px solid rgba(149, 202, 250, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sub-note .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #95CAFA;
+      border-radius: 10px;
+    }
+
+    .accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .accordion-item {
+      border: 1.8px solid #95CAFA;
+      border-radius: 20px;
+      background: white;
+      transition: all 0.12s ease;
+      box-shadow: 0 2px 8px rgba(149, 202, 250, 0.04);
+      overflow: hidden;
+    }
+
+    .accordion-item:hover {
+      border-color: #7fbaf0;
+    }
+
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      gap: 0.6rem;
+      user-select: none;
+      transition: background 0.08s ease;
+    }
+
+    .accordion-header:hover {
+      background: #fafdff;
+    }
+
+    .accordion-header .title {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #0e263c;
+      letter-spacing: -0.01em;
+    }
+
+    .accordion-header .icon {
+      font-size: 1rem;
+      color: #7a92ab;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .accordion-item.open .accordion-header .icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.2s ease;
+      padding: 0 1.2rem;
+      background: #ffffff;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .accordion-item.open .accordion-body {
+      max-height: 600px;
+      padding: 0 1.2rem 1rem 1.2rem;
+    }
+
+    .accordion-body p {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #1e3b58;
+      font-weight: 350;
+      margin: 0;
+    }
+
+    .accordion-body p strong {
+      font-weight: 500;
+      color: #0a233b;
+    }
+
+    .footer-note {
+      margin-top: 1.6rem;
+      padding-top: 1rem;
+      border-top: 2px solid rgba(149, 202, 250, 0.10);
+      font-size: 0.7rem;
+      color: #7a92ab;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 540px) {
+      .container {
+        padding: 1.2rem 1rem 1.8rem;
+      }
+      .header h1 {
+        font-size: 1.2rem;
+      }
+      .accordion-header {
+        padding: 0.6rem 0.9rem;
+      }
+      .accordion-header .title {
+        font-size: 0.8rem;
+      }
+      .accordion-body p {
+        font-size: 0.75rem;
+      }
+      .accordion-item.open .accordion-body {
+        padding: 0 0.9rem 0.8rem 0.9rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    .accordion-item {
+      opacity: 0;
+      animation: fadeUp 0.2s ease forwards;
+    }
+    .accordion-item:nth-child(1) { animation-delay: 0.02s; }
+    .accordion-item:nth-child(2) { animation-delay: 0.04s; }
+    .accordion-item:nth-child(3) { animation-delay: 0.06s; }
+    .accordion-item:nth-child(4) { animation-delay: 0.08s; }
+    .accordion-item:nth-child(5) { animation-delay: 0.10s; }
+    .accordion-item:nth-child(6) { animation-delay: 0.12s; }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(4px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Что проверить в договоре займа</h1>
+    <div class="sub-note">
+      <span class="dot"></span> нажмите, чтобы изучить
+    </div>
+  </div>
+
+  <div class="accordion" id="accordionContainer"></div>
+
+  <div class="footer-note">Договор займа · 6 ключевых пунктов</div>
+</div>
+
+<script>
+  (function() {
+    const itemsData = [
+      {
+        title: '1. Срок договора займа',
+        description: 'Договор займа можно заключить на любой срок. Чтобы заем не переквалифицировали в инвестиции или вклад в капитал, срок займа должен быть разумным. В российской бизнес-среде сроки возврата займа редко превышают 5–10 лет.'
+      },
+      {
+        title: '2. Возвратность займа и пролонгация',
+        description: 'Заем всегда возвратен. Это означает, что заемщик обязан вернуть в срок, как минимум, полученную ранее сумму, а кроме того, проценты, если они предусмотрены. Неоднократная пролонгация договора займа без одновременного хотя бы частичного возврата денег может увеличить риск переквалификации.'
+      },
+      {
+        title: '3. Процентный заем',
+        description: 'Регулярные выплаты подтверждают реальность займа и его обслуживание. Высокий риск возникает, если проценты начисляют и выплачивают вместе с основной суммой через много лет.'
+      },
+      {
+        title: '4. Предмет договора',
+        description: 'Предметом могут быть деньги, вещи, определенные родовыми признаками (исчисляемые весом, мерой, счетом) или ценные бумаги. Недвижимые вещи не могут являться предметом договора займа.'
+      },
+      {
+        title: '5. Зачет возврата займа и дивиденды',
+        description: 'Инспекторы могут квалифицировать выдачу займа учредителям-физлицам как выплату дивидендов авансом. Чтобы избежать проверки, в договоре не указывают условия о том, что оплата займа происходит за счет причитающихся заемщику дивидендов.'
+      },
+      {
+        title: '6. Прощение долга',
+        description: 'Прощенный долг переквалифицируют во внереализационные доходы заемщика. Если учредитель с долей не менее 50 процентов прощает долг, в доходы включают всю сумму, которую заемщик больше не обязан возвращать.'
+      }
+    ];
+
+    const container = document.getElementById('accordionContainer');
+    let openStates = new Array(itemsData.length).fill(false);
+
+    function render() {
+      container.innerHTML = '';
+
+      itemsData.forEach((item, index) => {
+        const isOpen = openStates[index];
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `accordion-item${isOpen ? ' open' : ''}`;
+
+        const header = document.createElement('div');
+        header.className = 'accordion-header';
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'title';
+        titleSpan.textContent = item.title;
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'icon';
+        iconSpan.textContent = '▾';
+
+        header.appendChild(titleSpan);
+        header.appendChild(iconSpan);
+
+        const body = document.createElement('div');
+        body.className = 'accordion-body';
+        const p = document.createElement('p');
+        p.textContent = item.description;
+        body.appendChild(p);
+
+        itemDiv.appendChild(header);
+        itemDiv.appendChild(body);
+        container.appendChild(itemDiv);
+
+        header.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleItem(index);
+        });
+
+        header.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleItem(index);
+          }
+        });
+      });
+    }
+
+    function toggleItem(index) {
+      openStates[index] = !openStates[index];
+      render();
+    }
+
+    render();
+  })();
+</script>
+</body>
+</html>
