@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Налоговый тренажер · Договор займа · Расследование</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f3f6fc 0%, #dce5f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, Roboto, sans-serif;
+        }
+
+        .trainer-wrapper {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .document-card {
+            background: #ffffff;
+            border-radius: 1.8rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 20, 40, 0.15);
+            padding: 1.2rem 1.8rem;
+            border: 1px solid rgba(100, 160, 220, 0.25);
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .doc-content {
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #1e2a36;
+            position: relative;
+        }
+
+        .doc-content h2 {
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0.5rem 0 0.3rem;
+            letter-spacing: 0.3px;
+        }
+
+        .doc-content .subhead {
+            text-align: center;
+            font-size: 0.75rem;
+            margin-bottom: 0.7rem;
+            color: #3b4a5a;
+        }
+
+        .doc-content .clause {
+            margin: 0.4rem 0;
+            padding-left: 0.2rem;
+        }
+
+        .doc-content .clause strong {
+            font-weight: 700;
+            color: #1f3b4c;
+        }
+
+        .hotspot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #96cafb;
+            color: #1a3343;
+            font-weight: 700;
+            font-size: 0.65rem;
+            cursor: pointer;
+            margin: 0 4px 0 6px;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            user-select: none;
+        }
+
+        .hotspot:hover {
+            transform: scale(1.07);
+            background-color: #7bb9e6;
+        }
+
+        .hotspot.answered {
+            background-color: #3a7ca5;
+            color: white;
+        }
+
+        .hotspot.correct-dot {
+            background-color: #1f8b5c !important;
+            color: white;
+        }
+
+        .hotspot.wrong-dot {
+            background-color: #c7453f !important;
+            color: white;
+        }
+
+        .signature-line {
+            text-align: right;
+            margin-top: 1.2rem;
+            font-style: italic;
+            font-size: 0.75rem;
+            border-top: 1px dashed #cbdae6;
+            padding-top: 0.6rem;
+        }
+
+        .control-bar {
+            background: white;
+            border-radius: 3rem;
+            padding: 0.6rem 1.8rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn {
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            font-weight: 600;
+            padding: 0.55rem 1.8rem;
+            border-radius: 3rem;
+            border: none;
+            cursor: pointer;
+            background: #eef3f8;
+            font-size: 0.85rem;
+            transition: 0.15s;
+        }
+
+        .btn-check {
+            background: #226a9e;
+            color: white;
+            box-shadow: 0 3px 8px rgba(34, 106, 158, 0.25);
+        }
+
+        .btn-check:hover {
+            background: #1b5581;
+        }
+
+        .btn-restart {
+            background: #e8edf2;
+            border: 1px solid #cbdae6;
+        }
+
+        .btn-restart:hover {
+            background: #dce4ec;
+        }
+
+        /* ——— всплывашка ——— */
+        .toast-question {
+            position: absolute;
+            background: white;
+            border-radius: 1.4rem;
+            box-shadow: 0 30px 45px -15px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            max-width: calc(100vw - 2rem);
+            padding: 1.1rem 1.2rem;
+            z-index: 1000;
+            border-top: 5px solid #96cafb;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        .toast-question h4 {
+            margin-bottom: 0.4rem;
+            color: #1a405b;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding-right: 30px;
+        }
+
+        .toast-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 0.8rem 0 0.5rem;
+        }
+
+        .toast-option {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.4rem 0.7rem;
+            border: 1.8px solid #b6d4ec;
+            border-radius: 0.9rem;
+            cursor: pointer;
+            transition: all 0.1s;
+            background: #ffffff;
+            font-size: 0.8rem;
+        }
+
+        .toast-option.selected {
+            background: #e3eefa;
+            border-color: #226a9e;
+        }
+
+        .toast-option input {
+            width: 15px;
+            height: 15px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #226a9e;
+            flex-shrink: 0;
+        }
+
+        .toast-option span {
+            flex: 1;
+        }
+
+        .toast-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+
+        .toast-btn {
+            padding: 0.3rem 1rem;
+            border-radius: 2.5rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            background: #eef3f8;
+            font-family: inherit;
+            font-size: 0.75rem;
+        }
+
+        .toast-btn-primary {
+            background: #226a9e;
+            color: white;
+        }
+
+        .toast-btn-primary:hover {
+            background: #1b5581;
+        }
+
+        .hidden-toast {
+            display: none;
+        }
+
+        .close-toast-icon {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #8f9faf;
+            line-height: 1;
+        }
+
+        .close-toast-icon:hover {
+            color: #2d4050;
+        }
+
+        .explanation-box {
+            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #dbe3ed;
+            font-size: 0.8rem;
+            color: #1e405a;
+        }
+
+        .explanation-box strong {
+            color: #1a4a6a;
+        }
+
+        /* ——— Блок с уликой ——— */
+        .clue-block {
+            margin-top: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            background: linear-gradient(135deg, #f0f7e8 0%, #e2efd6 100%);
+            border-radius: 1rem;
+            border-left: 5px solid #2a7a4a;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            display: none;
+            animation: fadeSlideIn 0.6s ease;
+        }
+
+        .clue-block.visible {
+            display: block;
+        }
+
+        .clue-block .clue-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1a4a2a;
+            margin-bottom: 0.2rem;
+        }
+
+        .clue-block .clue-text {
+            font-size: 0.9rem;
+            color: #1e3a2e;
+            line-height: 1.5;
+        }
+
+        .clue-block .clue-word {
+            display: inline-block;
+            background: #2a7a4a;
+            color: white;
+            padding: 0.15rem 0.8rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 650px) {
+            body { padding: 0.8rem; }
+            .document-card { padding: 0.8rem 1rem; }
+            .toast-question { width: 86vw; max-width: 320px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="trainer-wrapper">
+    <div class="document-card">
+        <div class="doc-content" id="documentContainer"></div>
+        <!-- Блок с уликой -->
+        <div id="clueBlock" class="clue-block">
+            <div class="clue-title">🔍 Улика найдена!</div>
+            <div class="clue-text">
+                Вы нашли третью улику: <span class="clue-word">ЦЕЛИ</span>.<br>
+                <strong>Сохраните это слово</strong> — оно понадобится в финале расследования.<br>
+                <span style="font-size: 0.85rem; color: #3a6a4a;">Соберите все кодовые слова в одну фразу, чтобы понять, какую схему увидела налоговая.</span>
+            </div>
+        </div>
+    </div>
+    <div class="control-bar">
+        <button class="btn btn-check" id="checkAnswersBtn">📋 Проверить</button>
+        <button class="btn btn-restart" id="restartBtn">⟳ Пройти заново</button>
+    </div>
+</div>
+
+<!-- Всплывающее окно -->
+<div id="toast" class="toast-question hidden-toast">
+    <span class="close-toast-icon" id="toastCloseIcon">&times;</span>
+    <h4 id="toastQuestionText">Вопрос</h4>
+    <div id="toastOptions" class="toast-options"></div>
+    <div id="toastExplanation" class="explanation-box" style="display: none;">
+        <strong>📖 Пояснение:</strong> <span id="explanationText"></span>
+    </div>
+    <div class="toast-actions">
+        <button class="toast-btn" id="toastCancel">Закрыть</button>
+    </div>
+</div>
+
+<script>
+    // ========== ДОКУМЕНТ ДОГОВОРА ЗАЙМА (Заимодавец — ООО «Альфа») ==========
+    const DOCUMENT_HTML = `
+        <h2>Договор займа</h2>
+        <div class="subhead">г. Краснодар · «10» августа 20ХХ г.</div>
+
+        <p><strong>ООО «Альфа»</strong>, именуемое в дальнейшем <strong>«Заимодавец»</strong>, в лице директора Иванова И.И., с одной стороны, и <strong>ООО «Развитие»</strong>, именуемое в дальнейшем <strong>«Заемщик»</strong>, в лице директора Петрова П.П., с другой стороны, заключили настоящий договор о нижеследующем.</p>
+
+        <div class="clause"><strong>1. Сумма и цель займа</strong></div>
+        <p>1.1. Заимодавец передает Заемщику денежные средства в размере <strong>10 000 000 рублей</strong>, а Заемщик обязуется возвратить полученную сумму и уплатить проценты.</p>
+        <p>1.2. Денежные средства предоставляются для финансирования хозяйственной деятельности и развития бизнеса Заемщика.</p>
+
+        <div class="clause"><strong>2. Проценты</strong></div>
+        <p>2.1. За пользование займом Заемщик уплачивает проценты в размере <strong>12 процентов годовых</strong>.</p>
+        <p>2.2. Проценты начисляются ежемесячно, но выплачиваются одновременно с возвратом основной суммы займа. <span class="hotspot" data-id="0"></span></p>
+
+        <div class="clause"><strong>3. Срок и возврат займа</strong></div>
+        <p>3.1. Заем предоставляется сроком на 10 лет.</p>
+        <p>3.2. Срок возврата займа может неоднократно продлеваться по соглашению сторон без ограничения общего срока действия договора. <span class="hotspot" data-id="1"></span></p>
+
+        <div class="clause"><strong>4. Дополнительное финансирование</strong></div>
+        <p>4.1. Заимодавец вправе перечислять Заемщику дополнительные денежные средства до полного погашения ранее предоставленного займа. Размер и сроки предоставления дополнительных сумм определяются Заимодавцем самостоятельно. <span class="hotspot" data-id="2"></span></p>
+        <p>4.2. Заемщик обязан использовать полученные денежные средства в соответствии с условиями настоящего договора.</p>
+
+        <div class="clause"><strong>5. Ответственность сторон</strong></div>
+        <p>5.1. За нарушение срока возврата займа Заемщик уплачивает Заимодавцу неустойку в размере 0,1 процента от суммы просроченной задолженности за каждый день просрочки.</p>
+        <p>5.2. Все изменения и дополнения к договору оформляются в письменной форме и подписываются обеими сторонами.</p>
+
+        <div class="signature-line">Заимодавец: ___________  /Иванов И.И./ &nbsp;&nbsp; Заемщик: ___________  /Петров П.П./</div>
+    `;
+
+    // ========== ВОПРОСЫ — правильный ответ ВСЕГДА на позиции 1 (второй) ==========
+    const QUESTIONS_DATA = {
+        0: {
+            text: 'Пункт 2.2: «Проценты начисляются ежемесячно, но выплачиваются одновременно с возвратом основной суммы». Почему это вызовет вопросы у налоговой?',
+            options: [
+                'Потому что проценты выплачивают только наличными.',
+                'Потому что проценты выплачивают только в конце срока, это свидетельствует об отсутствии реального намерения получать доход.',
+                'Потому что проценты нельзя начислять ежемесячно.',
+                'Потому что договор займа не может предусматривать проценты.'
+            ],
+            correct: 1,
+            explanation: 'Такая формулировка наводит на мысль, что Заимодавец не заинтересован в реальном получении процентного дохода. Налоговая может усомниться в экономической обоснованности. Безопаснее установить периодическую выплату процентов, например, ежемесячно или ежеквартально.'
+        },
+        1: {
+            text: 'Пункт 3.2: «Срок возврата займа может неоднократно продлеваться ... без ограничения общего срока действия договора». Какой риск создает это условие?',
+            options: [
+                'Заемщик сразу обязан вернуть всю сумму займа.',
+                'Неограниченная пролонгация свидетельствует о том, что стороны не планируют возврат займа.',
+                'Договор автоматически становится договором дарения.',
+                'Продлевать срок займа запрещено при любых обстоятельствах.'
+            ],
+            correct: 1,
+            explanation: 'Если в договоре длительный срок и постоянная пролонгация, это сигнализирует, что стороны не рассчитывают на возврат денег. Налоговые органы могут переквалифицировать заем в безвозмездное финансирование. Рекомендуется установить конкретный график погашения и документально обосновывать изменение срока.'
+        },
+        2: {
+            text: 'Пункт 4.1: «Заимодавец вправе перечислять дополнительные денежные средства до полного погашения ранее предоставленного займа ... размер и сроки определяются Заимодавцем самостоятельно». Почему это заинтересует инспектора?',
+            options: [
+                'Потому что дополнительные деньги нельзя перечислять на расчетный счет.',
+                'Потому что новые займы при непогашенной задолженности выглядят как постоянное финансирование деятельности компании.',
+                'Потому что дополнительные транши запрещены законом.',
+                'Потому что при выдаче нового транша предыдущий договор автоматически прекращается.'
+            ],
+            correct: 1,
+            explanation: 'Регулярные дополнительные транши при непогашенной задолженности создают впечатление постоянного финансирования бизнеса вместо обычного займа. Инспектор может заподозрить маскировку вклада в уставный капитал или безвозмездной помощи. Каждый дополнительный транш лучше оформлять отдельным соглашением с указанием суммы, срока, процентов и графика возврата.'
+        }
+    };
+
+    // ——— Состояние ———
+    let userSelections = { 0: null, 1: null, 2: null };
+    let answersStatus = { 0: null, 1: null, 2: null };
+    let checkedMode = false;
+    let activePointId = null;
+    let tempSelected = null;
+    let clueShown = false;
+
+    const appContainer = document.getElementById('documentContainer');
+    const toastDiv = document.getElementById('toast');
+    const toastQuestionText = document.getElementById('toastQuestionText');
+    const toastOptionsDiv = document.getElementById('toastOptions');
+    const toastExplanation = document.getElementById('toastExplanation');
+    const explanationTextSpan = document.getElementById('explanationText');
+    const toastCancel = document.getElementById('toastCancel');
+    const toastCloseIcon = document.getElementById('toastCloseIcon');
+    const clueBlock = document.getElementById('clueBlock');
+
+    function renderDocument() {
+        if (!appContainer) return;
+        appContainer.innerHTML = DOCUMENT_HTML;
+        const dots = document.querySelectorAll('.hotspot');
+        dots.forEach(dot => {
+            const pointId = parseInt(dot.getAttribute('data-id'), 10);
+            if (isNaN(pointId)) return;
+
+            if (checkedMode) {
+                if (answersStatus[pointId] === true) {
+                    dot.classList.add('correct-dot');
+                    dot.classList.remove('wrong-dot', 'answered');
+                } else if (answersStatus[pointId] === false) {
+                    dot.classList.add('wrong-dot');
+                    dot.classList.remove('correct-dot', 'answered');
+                } else {
+                    dot.classList.remove('correct-dot', 'wrong-dot', 'answered');
+                }
+            } else {
+                dot.classList.remove('correct-dot', 'wrong-dot');
+                if (userSelections[pointId] !== null) {
+                    dot.classList.add('answered');
+                } else {
+                    dot.classList.remove('answered');
+                }
+            }
+
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openToast(pointId, dot);
+            });
+        });
+
+        updateClueBlock();
+    }
+
+    function updateClueBlock() {
+        if (checkedMode) {
+            const allCorrect = Object.values(answersStatus).every(v => v === true);
+            if (allCorrect && !clueShown) {
+                clueShown = true;
+                clueBlock.classList.add('visible');
+                setTimeout(() => {
+                    clueBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            } else if (!allCorrect) {
+                clueBlock.classList.remove('visible');
+                clueShown = false;
+            }
+        } else {
+            clueBlock.classList.remove('visible');
+            clueShown = false;
+        }
+    }
+
+    function openToast(pointId, targetDot) {
+        const q = QUESTIONS_DATA[pointId];
+        if (!q) return;
+        activePointId = pointId;
+        const saved = userSelections[pointId];
+        tempSelected = saved !== null ? saved : null;
+
+        toastQuestionText.innerText = q.text;
+
+        if (checkedMode) {
+            toastOptionsDiv.style.display = 'none';
+            toastExplanation.style.display = 'block';
+            const isCorrect = answersStatus[pointId];
+            const correctText = q.options[q.correct];
+            const statusText = isCorrect ? '✅ Верно' : '❌ Неверно';
+            explanationTextSpan.innerHTML = `
+                <strong>${statusText}</strong><br>
+                <strong>Правильный ответ:</strong> ${escapeHtml(correctText)}<br><br>
+                ${escapeHtml(q.explanation)}
+            `;
+            const dynBtn = document.getElementById('toastSaveDynamic');
+            if (dynBtn) dynBtn.remove();
+        } else {
+            toastOptionsDiv.style.display = 'flex';
+            toastExplanation.style.display = 'none';
+            toastOptionsDiv.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'toast-option';
+                if (tempSelected === idx) optionDiv.classList.add('selected');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'toastRadio';
+                radio.value = idx;
+                radio.checked = (tempSelected === idx);
+                radio.addEventListener('change', () => {
+                    tempSelected = idx;
+                    document.querySelectorAll('.toast-option').forEach(optDiv => optDiv.classList.remove('selected'));
+                    optionDiv.classList.add('selected');
+                });
+                const span = document.createElement('span');
+                span.innerText = opt;
+                optionDiv.appendChild(radio);
+                optionDiv.appendChild(span);
+                optionDiv.addEventListener('click', (e) => {
+                    if (e.target !== radio) radio.click();
+                });
+                toastOptionsDiv.appendChild(optionDiv);
+            });
+            let saveBtn = document.getElementById('toastSaveDynamic');
+            if (!saveBtn) {
+                const actionsDiv = toastDiv.querySelector('.toast-actions');
+                const existing = document.getElementById('toastSaveDynamic');
+                if (existing) existing.remove();
+                const newBtn = document.createElement('button');
+                newBtn.id = 'toastSaveDynamic';
+                newBtn.className = 'toast-btn toast-btn-primary';
+                newBtn.textContent = 'Выбрать';
+                newBtn.addEventListener('click', saveCurrentAnswer);
+                actionsDiv.insertBefore(newBtn, toastCancel);
+            }
+        }
+
+        const rect = targetDot.getBoundingClientRect();
+        const toastWidth = 400;
+        const toastHeight = 320;
+        let left = rect.right + 14;
+        let top = rect.top - 10;
+        if (left + toastWidth > window.innerWidth) {
+            left = rect.left - toastWidth - 14;
+        }
+        if (top + toastHeight > window.innerHeight) {
+            top = window.innerHeight - toastHeight - 20;
+        }
+        if (top < 10) top = 10;
+        if (left < 10) left = 10;
+        toastDiv.style.left = left + 'px';
+        toastDiv.style.top = top + 'px';
+        toastDiv.style.bottom = 'auto';
+        toastDiv.style.right = 'auto';
+        toastDiv.classList.remove('hidden-toast');
+    }
+
+    function saveCurrentAnswer() {
+        if (activePointId !== null && tempSelected !== null && !checkedMode) {
+            userSelections[activePointId] = tempSelected;
+        }
+        closeToast();
+        renderDocument();
+    }
+
+    function closeToast() {
+        toastDiv.classList.add('hidden-toast');
+        activePointId = null;
+        tempSelected = null;
+        const dyn = document.getElementById('toastSaveDynamic');
+        if (dyn) dyn.remove();
+    }
+
+    function performCheck() {
+        if (checkedMode) return;
+        let allSelected = true;
+        for (let i = 0; i <= 2; i++) {
+            if (userSelections[i] === null) {
+                allSelected = false;
+                break;
+            }
+        }
+        if (!allSelected) {
+            const hint = document.createElement('div');
+            hint.textContent = '⚠️ Ответьте на все 3 вопроса (нажмите на каждую синюю точку)';
+            hint.style.position = 'fixed';
+            hint.style.bottom = '80px';
+            hint.style.left = '50%';
+            hint.style.transform = 'translateX(-50%)';
+            hint.style.backgroundColor = '#c7453f';
+            hint.style.color = 'white';
+            hint.style.padding = '0.6rem 1.2rem';
+            hint.style.borderRadius = '2.5rem';
+            hint.style.fontSize = '0.8rem';
+            hint.style.zIndex = '1000';
+            hint.style.fontFamily = 'Segoe UI, Inter, sans-serif';
+            hint.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)';
+            document.body.appendChild(hint);
+            setTimeout(() => hint.remove(), 2800);
+            return;
+        }
+
+        for (let i = 0; i <= 2; i++) {
+            answersStatus[i] = (userSelections[i] === QUESTIONS_DATA[i].correct);
+        }
+        checkedMode = true;
+        renderDocument();
+
+        const correctCount = Object.values(answersStatus).filter(v => v === true).length;
+        const msg = document.createElement('div');
+        msg.textContent = `✅ Проверка завершена! Правильных ответов: ${correctCount} из 3. Нажмите на любую точку для пояснения.`;
+        msg.style.position = 'fixed';
+        msg.style.bottom = '80px';
+        msg.style.left = '50%';
+        msg.style.transform = 'translateX(-50%)';
+        msg.style.backgroundColor = '#226a9e';
+        msg.style.color = 'white';
+        msg.style.padding = '0.6rem 1.2rem';
+        msg.style.borderRadius = '2.5rem';
+        msg.style.fontSize = '0.8rem';
+        msg.style.zIndex = '1000';
+        msg.style.fontFamily = 'Segoe UI, Inter, sans-serif';
+        msg.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 3200);
+    }
+
+    function fullReset() {
+        userSelections = { 0: null, 1: null, 2: null };
+        answersStatus = { 0: null, 1: null, 2: null };
+        checkedMode = false;
+        clueShown = false;
+        clueBlock.classList.remove('visible');
+        if (!toastDiv.classList.contains('hidden-toast')) closeToast();
+        renderDocument();
+        const resetMsg = document.createElement('div');
+        resetMsg.textContent = '⟳ Тест сброшен. Выберите ответы заново.';
+        resetMsg.style.position = 'fixed';
+        resetMsg.style.bottom = '80px';
+        resetMsg.style.left = '50%';
+        resetMsg.style.transform = 'translateX(-50%)';
+        resetMsg.style.backgroundColor = '#5a6e7c';
+        resetMsg.style.color = 'white';
+        resetMsg.style.padding = '0.5rem 1rem';
+        resetMsg.style.borderRadius = '2.5rem';
+        resetMsg.style.fontSize = '0.75rem';
+        resetMsg.style.zIndex = '1000';
+        resetMsg.style.fontFamily = 'Segoe UI, Inter, sans-serif';
+        document.body.appendChild(resetMsg);
+        setTimeout(() => resetMsg.remove(), 2000);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, (m) => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function bindControls() {
+        document.getElementById('checkAnswersBtn').addEventListener('click', performCheck);
+        document.getElementById('restartBtn').addEventListener('click', fullReset);
+        toastCancel.addEventListener('click', closeToast);
+        toastCloseIcon.addEventListener('click', closeToast);
+    }
+
+    function init() {
+        renderDocument();
+        bindControls();
+    }
+    init();
+</script>
+
+</body>
+</html>
