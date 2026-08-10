@@ -77,6 +77,35 @@
             padding-left: 1rem;
         }
 
+        .contract-fragment-wrapper {
+            margin-bottom: 1.2rem;
+        }
+        .contract-fragment-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4a7a9c;
+            margin-bottom: 0.3rem;
+        }
+        .contract-fragment {
+            background: #f4f9ff;
+            border: 1px solid #d0e4f5;
+            border-radius: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.95rem;
+            color: #1a3b4f;
+            line-height: 1.7;
+            font-family: 'Courier New', monospace;
+        }
+        .contract-fragment .clause {
+            margin-bottom: 0.2rem;
+        }
+        .contract-fragment .clause-number {
+            font-weight: 700;
+            color: #1f6190;
+        }
+
         .options-list {
             display: flex;
             flex-direction: column;
@@ -230,6 +259,7 @@
             .actions { padding: 0 1rem 1rem 1rem; justify-content: stretch; }
             .actions button { flex: 1; }
             .explanation-box { margin: 0 1rem 0.8rem 1rem; }
+            .contract-fragment { font-size: 0.85rem; padding: 0.6rem 1rem; }
         }
     </style>
 </head>
@@ -251,14 +281,15 @@
             explanation: "Если обязательство исполнено в срок или досрочно, договор прекращается. Если обязательство не исполнено (деньги не возвращены 1 августа), договор продолжает действовать. Это позволяет займодавцу ссылаться на его условия, например, на размер процентов за просрочку, и использовать другие законные механизмы взыскания долга."
         },
         {
-            text: "Фрагмент договора займа:\n4. Возврат займа\n4.1. Заемщик обязуется возвратить Займодавцу всю сумму Займа единовременно не позднее «31» марта 2026 года.\n4.2. В случае невозврата суммы Займа в срок, предусмотренный п. 4.1 настоящего Договора, Заемщик уплачивает Займодавцу неустойку в размере 0,1% от невозвращенной суммы за каждый день просрочки.\nЗаемщик просрочил возврат беспроцентного займа на 15 дней. Согласно договору, за просрочку начисляется неустойка 0.1% от суммы долга за каждый день просрочки. Сумма займа – 200 000 руб. Каков размер неустойки за период просрочки?",
+            text: "Заемщик просрочил возврат беспроцентного займа на 15 дней. Согласно договору, за просрочку начисляется неустойка 0,1% от суммы долга за каждый день просрочки. Сумма займа – 200 000 руб. Каков размер неустойки за период просрочки?",
             options: [
                 "3000 руб",
                 "1500 руб",
                 "Неустойка не начисляется, так как заем беспроцентный"
             ],
             correctIndex: 0,
-            explanation: "Расчет: 200 000 руб. × 0.1% × 15 дней = 200 000 × 0.001 × 15 = 3000 руб."
+            explanation: "Расчет: 200 000 руб. × 0,1% × 15 дней = 200 000 × 0,001 × 15 = 3000 руб.",
+            contractFragment: "4. Возврат займа\n4.1. Заемщик обязуется возвратить Займодавцу всю сумму Займа единовременно не позднее «31» марта 2026 года.\n4.2. В случае невозврата суммы Займа в срок, предусмотренный п. 4.1 настоящего Договора, Заемщик уплачивает Займодавцу неустойку в размере 0,1% от невозвращенной суммы за каждый день просрочки."
         },
         {
             text: "При составлении договора займа стороны хотят предусмотреть возможность прощения долга. Какой из предложенных вариантов формулировки условия является наиболее корректным?",
@@ -295,7 +326,8 @@
                 text: q.text,
                 options: shuffledOpts.map(item => item.text),
                 correctIndex: newCorrectIndex,
-                explanation: q.explanation
+                explanation: q.explanation,
+                contractFragment: q.contractFragment || null
             };
         });
     }
@@ -480,6 +512,32 @@
         
         const answeredCount = currentState.userAnswers.filter(a => a !== undefined).length;
         
+        // Формируем фрагмент договора с подписью "Фрагмент договора"
+        let fragmentHtml = '';
+        if (question.contractFragment) {
+            const lines = question.contractFragment.split('\n').filter(line => line.trim() !== '');
+            let clausesHtml = '';
+            lines.forEach(line => {
+                // Обрабатываем пункты с номерами вида 4., 4.1., 4.2.
+                const match = line.match(/^(\d+\.\d*|\d+\.)\s*/);
+                if (match) {
+                    const number = match[1];
+                    const text = line.substring(match[0].length);
+                    clausesHtml += `<div class="clause"><span class="clause-number">${number}</span> ${escapeHtml(text)}</div>`;
+                } else {
+                    clausesHtml += `<div class="clause">${escapeHtml(line)}</div>`;
+                }
+            });
+            fragmentHtml = `
+                <div class="contract-fragment-wrapper">
+                    <div class="contract-fragment-label">📄 Фрагмент договора</div>
+                    <div class="contract-fragment">
+                        ${clausesHtml}
+                    </div>
+                </div>
+            `;
+        }
+        
         const headerHtml = `
             <div class="quiz-header">
                 <div class="progress-area">
@@ -489,6 +547,7 @@
             </div>
             <div class="question-area">
                 <div class="question-text">${escapeHtml(question.text)}</div>
+                ${fragmentHtml}
                 <div class="options-list" id="optionsContainer">
                     ${optionsHtml}
                 </div>
