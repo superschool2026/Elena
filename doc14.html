@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер · Договорная работа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 16px;
+            margin: 0;
+        }
+
+        .trainer-card {
+            max-width: 760px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            padding: 28px 28px 24px;
+            box-shadow: 0 16px 32px -10px rgba(0, 20, 40, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .progress-badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #2c3e50;
+            letter-spacing: 0.2px;
+            margin-bottom: 12px;
+            opacity: 0.65;
+            border-bottom: 1px solid #eef2f6;
+            padding-bottom: 8px;
+        }
+
+        .task-header {
+            margin-bottom: 16px;
+        }
+
+        .task-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #0b1a2b;
+            letter-spacing: -0.1px;
+            margin-bottom: 6px;
+        }
+
+        .task-clause {
+            background: #f8faff;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border-left: 4px solid #95CAFA;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #1a2b3e;
+            margin: 6px 0 14px 0;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .question-block {
+            margin-top: 14px;
+        }
+
+        .question-text {
+            font-weight: 500;
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+            color: #1e2f40;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .option-item {
+            border: 2px solid #95CAFA;
+            border-radius: 40px;
+            padding: 10px 18px;
+            background: white;
+            transition: all 0.15s;
+            cursor: pointer;
+            font-size: 0.88rem;
+            color: #1a2a3a;
+            line-height: 1.35;
+            box-shadow: 0 1px 3px rgba(149, 202, 250, 0.06);
+        }
+
+        .option-item:hover {
+            background: #f6fbff;
+            border-color: #7bb9f0;
+            transform: scale(1.005);
+        }
+
+        .option-item.selected {
+            background: #ecf5fe;
+            border-color: #3d8fd9;
+            box-shadow: 0 0 0 2px rgba(61, 143, 217, 0.15);
+        }
+
+        .option-item.correct {
+            background: #e3f5e9;
+            border-color: #1e9b5e;
+            box-shadow: 0 0 0 2px rgba(30, 155, 94, 0.15);
+        }
+
+        .option-item.wrong {
+            background: #ffe9eb;
+            border-color: #c93e4b;
+            box-shadow: 0 0 0 2px rgba(201, 62, 75, 0.15);
+        }
+
+        .option-item.disabled {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 4px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .check-btn {
+            background: #1f3a57;
+            border: none;
+            padding: 8px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.12s;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 10px rgba(25, 55, 85, 0.10);
+            border: 1px solid #264a6b;
+        }
+
+        .check-btn:hover:not(:disabled) {
+            background: #0f283f;
+            transform: scale(1.01);
+            box-shadow: 0 6px 14px rgba(20, 50, 80, 0.15);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.45;
+            cursor: default;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .check-btn.next {
+            background: #1e7b4b;
+            border-color: #1a6a3f;
+        }
+
+        .check-btn.next:hover:not(:disabled) {
+            background: #15633b;
+        }
+
+        .check-btn.restart {
+            background: #b13e4b;
+            border-color: #922f3b;
+        }
+
+        .check-btn.restart:hover:not(:disabled) {
+            background: #8f2f3b;
+        }
+
+        .footer-progress {
+            margin-top: 18px;
+            border-top: 1px solid #e6edf5;
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: #335577;
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 12px;
+            background: #d6e2f0;
+            transition: 0.2s;
+        }
+
+        .dot.active {
+            background: #1f3a57;
+            width: 18px;
+        }
+
+        .dot.done {
+            background: #1e9b5e;
+        }
+
+        .dot.wrong-dot {
+            background: #c93e4b;
+        }
+
+        @media (max-width: 550px) {
+            .trainer-card {
+                padding: 18px 14px;
+                border-radius: 24px;
+            }
+            .option-item {
+                border-radius: 28px;
+                padding: 8px 14px;
+                font-size: 0.84rem;
+            }
+            .task-clause {
+                font-size: 0.82rem;
+                padding: 10px 12px;
+            }
+            .check-btn {
+                padding: 8px 20px;
+                font-size: 0.82rem;
+                width: 100%;
+                justify-content: center;
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ---------- экран входа ---------- */
+        .login-screen {
+            padding: 20px 0 10px;
+        }
+        .login-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 12px;
+        }
+        .login-sub {
+            font-size: 0.92rem;
+            color: #1f3a57;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid #95CAFA;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.15s;
+            background: white;
+        }
+        .login-input:focus {
+            border-color: #3d8fd9;
+            box-shadow: 0 0 0 3px rgba(61, 143, 217, 0.15);
+        }
+        .login-error {
+            color: #c93e4b;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+        }
+        .login-btn {
+            margin-top: 16px;
+            background: #1f3a57;
+            border: none;
+            padding: 10px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.12s;
+            border: 1px solid #264a6b;
+            width: 100%;
+        }
+        .login-btn:hover {
+            background: #0f283f;
+        }
+
+        /* ---------- информационный экран перед заданиями ---------- */
+        .intro-screen {
+            padding: 12px 0 6px;
+        }
+        .intro-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 14px;
+        }
+        .intro-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #1f3a57;
+            margin-bottom: 12px;
+        }
+        .intro-highlight {
+            background: #f0f7fe;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #0b3a5a;
+            text-align: center;
+            border-left: 4px solid #3d8fd9;
+            margin: 12px 0 16px;
+        }
+        .intro-btn {
+            background: #1e7b4b;
+            border: none;
+            padding: 10px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.12s;
+            width: 100%;
+        }
+        .intro-btn:hover {
+            background: #15633b;
+        }
+
+        /* финальный экран */
+        .finish-screen {
+            padding: 10px 0 4px;
+        }
+        .finish-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0b1a2b;
+            margin-bottom: 10px;
+        }
+        .finish-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #1f3a57;
+            margin-bottom: 16px;
+        }
+        .finish-error {
+            background: #fff0f0;
+            border-left: 4px solid #c93e4b;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: #5a1e26;
+            margin-bottom: 16px;
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .template-btn {
+            background: #f0f7fe;
+            border: 1.5px solid #95CAFA;
+            border-radius: 30px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1a3a5a;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .template-btn:hover {
+            background: #e1effa;
+            border-color: #5f9fd4;
+            transform: scale(1.01);
+        }
+        .finish-restart-btn {
+            margin-top: 16px;
+            background: #1f3a57;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.12s;
+            border: 1px solid #264a6b;
+            width: 100%;
+        }
+        .finish-restart-btn:hover {
+            background: #0f283f;
+        }
+        @media (max-width: 480px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="trainer-card" id="app">
+    <!-- шапка (скрывается на логине / интро / финише) -->
+    <div class="progress-badge" id="progressLabel">Задание 1 из 8</div>
+    <div class="task-header">
+        <div class="task-title" id="taskTitle">Задание 1: Предмет договора</div>
+        <div class="task-clause" id="taskClause">«Исполнитель обязуется оказывать Заказчику консультационные услуги...»</div>
+    </div>
+
+    <div id="mainContainer">
+        <!-- сюда рендерится всё: логин, интро, задания, финиш -->
+    </div>
+
+    <div class="action-bar" id="actionBar">
+        <button class="check-btn" id="actionBtn">Проверить</button>
+    </div>
+
+    <div class="footer-progress" id="footerProgress">
+        <span id="counterText">1 / 8</span>
+        <div class="dots" id="dotContainer"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- ДАННЫЕ -----
+        const tasks = [
+            {
+                title: 'Задание 1: Предмет договора',
+                clause: '«Исполнитель обязуется оказывать Заказчику консультационные услуги по вопросам оптимизации бизнес-процессов, а Заказчик обязуется принимать и оплачивать эти услуги. Детализация услуг определяется в приложениях к договору».',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, всю информацию мы детализируем в актах.',
+                            'В договоре отсутствуют приложения и услуги не конкретизированы. Мы не сможем подтвердить расходы по такой сделке.',
+                            'Договор признают недействительным, так как консультационные услуги по оптимизации бизнес-процессов всегда требуют лицензии.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Получу от Исполнителя письмо с перечнем услуг после того, как закончит работу.',
+                            'Приложу к договору спецификацию или техническое задание, в актах укажу содержание услуг, даты, результаты, а также сохраню переписку и отчеты.',
+                            'Запрошу у Исполнителя справку о том, что услуги имели экономическую цель для Заказчика.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Исполнитель обязуется оказывать Заказчику консультационные услуги по вопросам оптимизации бизнес-процессов. Перечень, объем и сроки услуг определяются в ежемесячных технических заданиях, которые являются неотъемлемой частью договора. По итогам месяца Исполнитель предоставляет отчет с описанием выполненных работ и достигнутых результатов».',
+                            '«Исполнитель обязуется оказывать Заказчику любые консультационные услуги по усмотрению Исполнителя. Детализация услуг не требуется, так как стороны доверяют друг другу».',
+                            '«Исполнитель обязуется оказывать консультационные услуги. Конкретный перечень услуг определяется Заказчиком в устном порядке по мере необходимости».'
+                        ],
+                        correct: 0
+                    }
+                ]
+            },
+            {
+                title: 'Задание 2: Цена договора',
+                clause: '«Стоимость услуг составляет 100 000 рублей в месяц. Оплата производится единым платежом на основании счета Исполнителя». При этом в компании есть три аналогичных договора с другими поставщиками: 45 000 руб., 50 000 руб. и 105 000 руб. в месяц.',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, цена в пределах 20% отклонения от средней по сопоставимым сделкам считается рыночной.',
+                            'Цена выше 50 000 рублей автоматически означает, что расходы будут сняты при проверке.',
+                            'Если цена отличается от большинства сопоставимых сделок более чем в два раза, налоговая рассматривает это как признак необоснованной налоговой выгоды — особенно вместе с другими подозрительными обстоятельствами.'
+                        ],
+                        correct: 2
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Укажу в договоре, что цена является рыночной и согласована сторонами.',
+                            'Подготовлю экономическое обоснование: сравню условия договоров (объем, квалификация специалистов, сроки, гарантии), проанализирую рыночное предложение.',
+                            'Запрошу от поставщика коммерческое предложение с указанием цены.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Стоимость услуг составляет 100 000 рублей в месяц. Цена определена сторонами как рыночная и не требует дополнительного обоснования».',
+                            '«Стоимость услуг составляет 100 000 рублей в месяц и формируется исходя из: 80 часов работы старшего консультанта по ставке 1 000 руб./час и 20 часов работы ведущего эксперта по ставке 1 000 руб./час. Ставки соответствуют среднерыночному уровню для специалистов данной квалификации в регионе».',
+                            '«Стоимость услуг определяется Заказчиком в одностороннем порядке в зависимости от финансового результата компании за предыдущий квартал».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                title: 'Задание 4: НДС в договоре',
+                clause: '«Стоимость услуг составляет 120 000 рублей. НДС не облагается». Поставщик применяет УСН, но в договоре не указано основание освобождения от НДС.',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, достаточно указать, что НДС не облагается.',
+                            'Если в договоре нет ссылки на основание освобождения от НДС, налоговая может посчитать НДС включенным в цену и потребовать его выделить и уплатить.',
+                            'Поставщик на УСН не имеет права указывать в договоре, что НДС не облагается.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Проверю наличие у поставщика свидетельства о регистрации ИП.',
+                            'Запрошу у поставщика уведомление о применении УСН или выписку из ЕГРИП/ЕГРЮЛ и укажу в договоре конкретное основание: «В связи с применением Поставщиком упрощенной системы налогообложения».',
+                            'Укажу в платежном поручении «НДС не облагается».'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Стоимость услуг составляет 120 000 рублей. НДС не облагается в соответствии с решением сторон».',
+                            '«Стоимость услуг составляет 120 000 рублей. НДС не облагается в связи с применением Поставщиком упрощенной системы налогообложения (п. 2 ст. 346.11 НК РФ)».',
+                            '«Стоимость услуг составляет 120 000 рублей, в том числе НДС 0%».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                title: 'Задание 5: Проценты по займу',
+                clause: '«За пользование займом Заемщик уплачивает проценты в размере 12 процентов годовых. Проценты начисляются ежемесячно, но выплачиваются одновременно с возвратом основной суммы займа по окончании срока действия договора». Срок займа — 5 лет.',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет: выплата процентов в конце срока — нормальная практика для долгосрочных займов.',
+                            'Если проценты по займу выплачивают только в конце срока, налоговая усомнится в реальности займа и переквалифицирует его в инвестиционное финансирование.',
+                            'Проценты по займу всегда выплачивают ежемесячно, иначе договор недействителен.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверить?',
+                        options: [
+                            'Укажу в договоре, что стороны согласовали выплату процентов в конце срока.',
+                            'Установлю периодическую выплату процентов, а при отсрочке подготовлю экономическое обоснование.',
+                            'Получу от Заемщика расписку о том, что он обязуется выплатить проценты в срок.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Проценты начисляются ежемесячно и выплачиваются Заемщиком одновременно с возвратом основной суммы займа по окончании срока действия договора без ограничения права Заимодавца требовать досрочной выплаты».',
+                            '«Проценты начисляются ежемесячно и выплачиваются Заемщиком не позднее 5-го числа месяца, следующего за расчетным. При просрочке выплаты процентов Заимодавец вправе требовать досрочного возврата займа».',
+                            '«Проценты выплачиваются по усмотрению Заемщика в любой момент срока действия договора».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                title: 'Задание 6: Цель займа',
+                clause: '«Денежные средства предоставляются для финансирования хозяйственной деятельности и развития бизнеса Заемщика».',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, это стандартная формулировка цели займа.',
+                            'Если цель займа сформулировали слишком общо, сложно подтвердить, на что компания получила и потратила деньги.',
+                            'Закон не требует указывать цель займа в договоре.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Укажу в акте, что деньги использовали на хозяйственные нужды.',
+                            'Конкретизирую цель, запрошу у Заемщика отчет о целевом использовании средств.',
+                            'Запрошу от Заемщика письмо о том, что деньги использовали по назначению.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Денежные средства предоставляются для любых целей по усмотрению Заемщика».',
+                            '«Денежные средства предоставляются для приобретения производственного оборудования (станки, конвейерные линии) в соответствии с инвестиционным планом Заемщика. Заемщик обязуется предоставить отчет о целевом использовании средств в течение 30 дней после завершения закупок».',
+                            '«Цель использования денежных средств определяется Заимодавцем после перечисления средств».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                title: 'Задание 7: Интеграция в бизнес-процессы',
+                clause: '«Исполнитель обязуется выполнять поручения Заказчика в рамках деятельности компании. Исполнитель подчиняется внутреннему распорядку Заказчика и обязан присутствовать в офисе с 9:00 до 18:00». Исполнитель — самозанятый.',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, самозанятый может работать в офисе Заказчика.',
+                            'Условие о соблюдении внутреннего распорядка и фиксированном графике указывает на трудовые отношения. Налоговая переквалифицирует договор в трудовой.',
+                            'Самозанятые обязаны работать в офисе Заказчика для контроля качества услуг.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Укажу в договоре, что Исполнитель работает на условиях самозанятости.',
+                            'Исключу условия о графике, укажу, что Исполнитель самостоятельно определяет время и место выполнения работ, результат фиксируется в актах.',
+                            'Получу от самозанятого расписку о том, что он согласен работать по графику.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Исполнитель обязан присутствовать в офисе Заказчика с 9:00 до 18:00 и подчиняться правилам внутреннего трудового распорядка».',
+                            '«Исполнитель самостоятельно определяет время, место и способ выполнения работ. Результат работ передается Заказчику в электронном виде. Исполнитель не подчиняется внутреннему распорядку Заказчика».',
+                            '«Исполнитель работает по графику, согласованному с непосредственным руководителем Заказчика».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                title: 'Задание 8: Использование оборудования и ресурсов',
+                clause: '«Заказчик предоставляет Исполнителю рабочее место, компьютер, телефон, корпоративную почту и доступ к внутренним системам компании. Исполнитель использует предоставленные ресурсы для выполнения своих обязанностей». Исполнитель — самозанятый.',
+                questions: [
+                    {
+                        q: 'В чем риск такой формулировки?',
+                        options: [
+                            'Риска нет, самозанятый может использовать оборудование Заказчика для удобства.',
+                            'Предоставление рабочего места, оборудования и корпоративных ресурсов - признак трудовых отношений и создает риск переквалификации договора.',
+                            'Самозанятые обязаны использовать оборудование Заказчика для контроля качества.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Как вы обезопасите себя и что проверите?',
+                        options: [
+                            'Укажу в договоре, что оборудование предоставляется во временное пользование.',
+                            'Заменю этот пункт и укажу, что Исполнитель использует собственное оборудование, результат передается в электронном виде.',
+                            'Составлю акт приема-передачи оборудования.'
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: 'Выберите безопасную формулировку',
+                        options: [
+                            '«Заказчик предоставляет Исполнителю рабочее место, компьютер и корпоративную почту для выполнения работ».',
+                            '«Исполнитель использует собственное оборудование и программное обеспечение для выполнения работ. Результат работ передается Заказчику в электронном виде на электронную почту».',
+                            '«Исполнитель обязан использовать корпоративную почту Заказчика для всей переписки по проекту».'
+                        ],
+                        correct: 1
+                    }
+                ]
+            }
+        ];
+
+        // ----- состояние -----
+        let currentTaskIndex = 0;
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let isAnswered = false;
+        let taskResults = [];
+        let shuffledIndices = {};
+        let isFinishScreen = false;
+
+        // ----- DOM -----
+        const mainContainer = document.getElementById('mainContainer');
+        const actionBtn = document.getElementById('actionBtn');
+        const actionBar = document.getElementById('actionBar');
+        const progressLabel = document.getElementById('progressLabel');
+        const taskTitle = document.getElementById('taskTitle');
+        const taskClause = document.getElementById('taskClause');
+        const counterText = document.getElementById('counterText');
+        const dotContainer = document.getElementById('dotContainer');
+        const footerProgress = document.getElementById('footerProgress');
+
+        // ----- ИСПОЛЬЗУЕМ localStorage, чтобы код навсегда сохранился на устройстве -----
+        const STORAGE_KEY = 'trainer_logged_in';
+
+        function isLoggedIn() {
+            return localStorage.getItem(STORAGE_KEY) === 'true';
+        }
+
+        function setLoggedIn() {
+            localStorage.setItem(STORAGE_KEY, 'true');
+        }
+
+        // ----- инициализация результатов -----
+        function initResults() {
+            taskResults = tasks.map(task => task.questions.map(() => false));
+        }
+        initResults();
+
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function getShuffledIndices(taskIdx, questionIdx) {
+            const key = `${taskIdx}-${questionIdx}`;
+            if (!shuffledIndices[key]) {
+                const count = tasks[taskIdx].questions[questionIdx].options.length;
+                const indices = Array.from({ length: count }, (_, i) => i);
+                shuffledIndices[key] = shuffleArray(indices);
+            }
+            return shuffledIndices[key];
+        }
+
+        // ----- Отрисовка экранов -----
+
+        // 1. Логин
+        function renderLogin() {
+            hideAllExceptMain();
+            mainContainer.innerHTML = `
+                <div class="login-screen">
+                    <div class="login-title">🔐 Вход в тренажер</div>
+                    <div class="login-sub">Введите кодовую фразу, чтобы получить доступ к заданиям.</div>
+                    <input class="login-input" id="loginInput" type="text" placeholder="Введите фразу..." autofocus>
+                    <div class="login-error" id="loginError">Неверная фраза. Попробуйте еще раз.</div>
+                    <button class="login-btn" id="loginBtn">Войти</button>
+                </div>
+            `;
+            actionBar.classList.add('hidden');
+            footerProgress.classList.add('hidden');
+
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                const input = document.getElementById('loginInput');
+                const val = input.value.trim();
+                const errorEl = document.getElementById('loginError');
+                if (val.toLowerCase() === 'отсутствие реальной деловой цели сделки') {
+                    errorEl.style.display = 'none';
+                    setLoggedIn();
+                    renderIntro();
+                } else {
+                    errorEl.style.display = 'block';
+                }
+            });
+
+            document.getElementById('loginInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('loginBtn').click();
+                }
+            });
+        }
+
+        // 2. Интро (после логина)
+        function renderIntro() {
+            hideAllExceptMain();
+            mainContainer.innerHTML = `
+                <div class="intro-screen">
+                    <div class="intro-text">
+                        Вы проанализировали договоры и верно определили причину, по которой налоговая обратила внимание на вашу компанию:
+                    </div>
+                    <div class="intro-highlight">
+                        ОТСУТСТВИЕ РЕАЛЬНОЙ ДЕЛОВОЙ ЦЕЛИ СДЕЛКИ
+                    </div>
+                    <div class="intro-text">
+                        Неточные и противоречивые условия в договорах вызвали дополнительные вопросы у инспекторов. Если налоговый период еще не закрыт, у вас есть возможность исправить ситуацию и доработать их.
+                        <br><br>
+                        Переходите к финальному испытанию: определите, что именно не так в формулировках договоров, и исправьте их так, чтобы снизить налоговые риски компании.
+                    </div>
+                    <button class="intro-btn" id="introStartBtn">Начать испытание →</button>
+                </div>
+            `;
+            actionBar.classList.add('hidden');
+            footerProgress.classList.add('hidden');
+
+            document.getElementById('introStartBtn').addEventListener('click', function() {
+                startTasks();
+            });
+        }
+
+        // 3. Задания
+        function startTasks() {
+            isFinishScreen = false;
+            currentTaskIndex = 0;
+            currentQuestionIndex = 0;
+            selectedOption = null;
+            isAnswered = false;
+            initResults();
+            shuffledIndices = {};
+            actionBar.classList.remove('hidden');
+            footerProgress.classList.remove('hidden');
+            progressLabel.classList.remove('hidden');
+            taskTitle.classList.remove('hidden');
+            taskClause.classList.remove('hidden');
+            counterText.classList.remove('hidden');
+            dotContainer.classList.remove('hidden');
+            renderTask();
+        }
+
+        function hideAllExceptMain() {
+            progressLabel.classList.add('hidden');
+            taskTitle.classList.add('hidden');
+            taskClause.classList.add('hidden');
+            counterText.classList.add('hidden');
+            dotContainer.classList.add('hidden');
+            actionBar.classList.add('hidden');
+            footerProgress.classList.add('hidden');
+        }
+
+        // Рендер текущего задания
+        function renderTask() {
+            if (isFinishScreen) {
+                renderFinishScreen();
+                return;
+            }
+
+            const task = tasks[currentTaskIndex];
+            const questions = task.questions;
+            const qIndex = currentQuestionIndex;
+            const qData = questions[qIndex];
+
+            progressLabel.classList.remove('hidden');
+            taskTitle.classList.remove('hidden');
+            taskClause.classList.remove('hidden');
+            counterText.classList.remove('hidden');
+            dotContainer.classList.remove('hidden');
+            actionBar.classList.remove('hidden');
+            footerProgress.classList.remove('hidden');
+
+            taskTitle.textContent = task.title;
+            taskClause.textContent = task.clause;
+            progressLabel.textContent = `Задание ${currentTaskIndex+1} из ${tasks.length}`;
+
+            const shuffled = getShuffledIndices(currentTaskIndex, qIndex);
+            const shuffledOptions = shuffled.map(origIdx => ({
+                text: qData.options[origIdx],
+                origIndex: origIdx
+            }));
+
+            let html = `<div class="question-block"><div class="question-text">${qData.q}</div><div class="options-grid">`;
+            shuffledOptions.forEach((item) => {
+                let classes = 'option-item';
+                if (selectedOption === item.origIndex) classes += ' selected';
+                if (isAnswered) {
+                    classes += ' disabled';
+                    if (item.origIndex === qData.correct) classes += ' correct';
+                    else if (selectedOption === item.origIndex && item.origIndex !== qData.correct) classes += ' wrong';
+                }
+                html += `<div class="${classes}" data-origindex="${item.origIndex}">${item.text}</div>`;
+            });
+            html += `</div></div>`;
+            mainContainer.innerHTML = html;
+
+            document.querySelectorAll('.option-item').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (isAnswered) return;
+                    const origIdx = parseInt(this.dataset.origindex);
+                    selectedOption = origIdx;
+                    renderTask();
+                });
+            });
+
+            if (isAnswered) {
+                const allDone = (currentQuestionIndex === questions.length - 1);
+                if (allDone) {
+                    actionBtn.textContent = 'Далее ➜';
+                    actionBtn.classList.add('next');
+                } else {
+                    actionBtn.textContent = 'Следующий вопрос ➜';
+                    actionBtn.classList.add('next');
+                }
+                actionBtn.disabled = false;
+
+                const isLastTask = (currentTaskIndex === tasks.length - 1);
+                const isLastQuestion = (currentQuestionIndex === questions.length - 1);
+                if (isLastTask && isLastQuestion) {
+                    actionBtn.textContent = 'Завершить 🏁';
+                    actionBtn.classList.remove('next');
+                    actionBtn.classList.add('restart');
+                    actionBtn.disabled = false;
+                }
+            } else {
+                actionBtn.textContent = 'Проверить';
+                actionBtn.classList.remove('next', 'restart');
+                actionBtn.disabled = (selectedOption === null);
+            }
+
+            counterText.textContent = `${currentTaskIndex+1} / ${tasks.length}`;
+
+            let dotsHtml = '';
+            for (let t = 0; t < tasks.length; t++) {
+                let cls = 'dot';
+                if (t === currentTaskIndex) cls += ' active';
+                else {
+                    const allAnswered = taskResults[t] && taskResults[t].every(v => v !== undefined);
+                    if (allAnswered) {
+                        const allCorrect = taskResults[t].every(v => v === true);
+                        cls += allCorrect ? ' done' : ' wrong-dot';
+                    }
+                }
+                dotsHtml += `<span class="${cls}"></span>`;
+            }
+            dotContainer.innerHTML = dotsHtml;
+        }
+
+        // Финальный экран (ЗДЕСЬ ВСТАВЬТЕ ВАШИ ССЫЛКИ НА PDF)
+        function renderFinishScreen() {
+            hideAllExceptMain();
+            mainContainer.className = 'finish-screen';
+
+            const allCorrect = taskResults.every(task => task.every(v => v === true));
+
+            if (allCorrect) {
+                mainContainer.innerHTML = `
+                    <div class="finish-title">🎉 Молодец!</div>
+                    <div class="finish-text">
+                        Вы научились анализировать договоры на налоговые риски и находить формулировки, которые защитят компанию от претензий налоговой.<br><br>
+                        Теперь используйте этот навык в работе: скачайте безопасные шаблоны от Надежды Самковой и берите их за основу, когда будете готовить договора.
+                    </div>
+                    <div class="template-grid">
+                        <a href="ССЫЛКА_НА_ФАЙЛ_ПОСТАВКИ.pdf" target="_blank" class="template-btn" style="text-decoration:none;">📄 Договор поставки</a>
+                        <a href="ССЫЛКА_НА_ФАЙЛ_АРЕНДЫ.pdf" target="_blank" class="template-btn" style="text-decoration:none;">📄 Договор аренды</a>
+                        <a href="ССЫЛКА_НА_ФАЙЛ_ЗАЙМА.pdf" target="_blank" class="template-btn" style="text-decoration:none;">📄 Договор займа</a>
+                        <a href="ССЫЛКА_НА_ФАЙЛ_САМОЗАНЯТОГО.pdf" target="_blank" class="template-btn" style="text-decoration:none;">📄 Договор с самозанятым</a>
+                    </div>
+                    <button class="finish-restart-btn" id="finishRestartBtn">🔄 Пройти заново</button>
+                `;
+                
+                document.getElementById('finishRestartBtn').addEventListener('click', resetAll);
+            } else {
+                mainContainer.innerHTML = `
+                    <div class="finish-error">
+                        ❌ Вы допустили ошибки в задании. Чтобы закрепить материал, пройдите тренажер еще раз и проверьте свои решения.
+                    </div>
+                    <div class="finish-text" style="color:#1f3a57; font-size:0.92rem;">
+                        Выполните все задания правильно — и получите доступ к безопасным шаблонам договоров.
+                    </div>
+                    <button class="finish-restart-btn" id="finishRestartBtn">🔄 Пройти заново</button>
+                `;
+                document.getElementById('finishRestartBtn').addEventListener('click', resetAll);
+            }
+
+            actionBar.classList.add('hidden');
+            footerProgress.classList.add('hidden');
+        }
+
+        // Полный сброс (к логину, но с проверкой localStorage)
+        function resetAll() {
+            currentTaskIndex = 0;
+            currentQuestionIndex = 0;
+            selectedOption = null;
+            isAnswered = false;
+            isFinishScreen = false;
+            initResults();
+            shuffledIndices = {};
+            
+            // Если пользователь нажимает "Пройти заново", 
+            // мы мгновенно перекидываем его сразу к заданиям, пропуская интро.
+            startTasks();
+        }
+
+        // Обработка действий кнопки
+        function handleAction() {
+            if (isFinishScreen) return;
+
+            const task = tasks[currentTaskIndex];
+            const qData = task.questions[currentQuestionIndex];
+            const isLastTask = (currentTaskIndex === tasks.length - 1);
+            const isLastQuestion = (currentQuestionIndex === task.questions.length - 1);
+
+            if (isLastTask && isLastQuestion && isAnswered) {
+                isFinishScreen = true;
+                renderFinishScreen();
+                return;
+            }
+
+            if (!isAnswered) {
+                if (selectedOption === null) return;
+                const isCorrect = (selectedOption === qData.correct);
+                taskResults[currentTaskIndex][currentQuestionIndex] = isCorrect;
+                isAnswered = true;
+                renderTask();
+                return;
+            }
+
+            const questions = task.questions;
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                selectedOption = null;
+                isAnswered = false;
+                renderTask();
+            } else {
+                if (currentTaskIndex < tasks.length - 1) {
+                    currentTaskIndex++;
+                    currentQuestionIndex = 0;
+                    selectedOption = null;
+                    isAnswered = false;
+                    renderTask();
+                } else {
+                    renderTask();
+                }
+            }
+        }
+
+        // ----- инициализация -----
+        actionBtn.addEventListener('click', handleAction);
+
+        // Старт — проверяем localStorage
+        if (isLoggedIn()) {
+            // уже залогинен — сразу на интро
+            renderIntro();
+        } else {
+            renderLogin();
+        }
+
+    })();
+</script>
+
+</body>
+</html>
