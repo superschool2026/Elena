@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Тест-презентация: изменения 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef2f9;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 16px;
+        }
+
+        .presentation-wrapper {
+            max-width: 820px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 44px;
+            box-shadow: 0 24px 48px -16px rgba(0, 20, 40, 0.30);
+            padding: 32px 32px 28px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e3e9f3;
+            padding-bottom: 14px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header h1 {
+            font-weight: 500;
+            font-size: 24px;
+            letter-spacing: -0.3px;
+            color: #0b1f3f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #5b6f8e;
+            background: #eef3fc;
+            padding: 2px 14px;
+            border-radius: 40px;
+        }
+
+        .progress-indicator {
+            background: #e9eff8;
+            border-radius: 60px;
+            padding: 6px 18px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1d3557;
+            letter-spacing: 0.3px;
+        }
+
+        .slide-container {
+            position: relative;
+            min-height: 380px;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeSlide 0.25s ease;
+            padding: 4px 0 8px;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0.5; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #0c2647;
+            margin-bottom: 24px;
+            padding-right: 4px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            background: #f9fbfe;
+            border: 1.5px solid #dae1ee;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-size: 16px;
+            color: #1c314f;
+        }
+
+        .option:hover:not(.disabled-opt) {
+            background: #eef4fe;
+            border-color: #a7bfec;
+        }
+
+        .option.disabled-opt {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .option input[type="radio"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #b8cae2;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: 0.08s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option input[type="radio"]:checked {
+            border-color: #2e6cff;
+            background: #2e6cff;
+            box-shadow: inset 0 0 0 4px white, 0 0 0 1px #2e6cff;
+        }
+
+        .option.correct-opt {
+            background: #ddf3e6;
+            border-color: #1d8b53;
+        }
+
+        .option.wrong-opt {
+            background: #fde4e4;
+            border-color: #c94a4a;
+        }
+
+        .feedback-box {
+            margin: 16px 0 12px;
+            padding: 16px 20px;
+            background: #f2f8ff;
+            border-radius: 20px;
+            border-left: 5px solid #3a7aff;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #15315c;
+            display: none;
+        }
+
+        .feedback-box.visible {
+            display: block;
+        }
+
+        .feedback-box .badge {
+            font-weight: 600;
+        }
+
+        .feedback-box .badge.correct {
+            color: #1b7849;
+        }
+
+        .feedback-box .badge.wrong {
+            color: #bc3a3a;
+        }
+
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 28px;
+            padding-top: 14px;
+            border-top: 1px solid #e7edf7;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: #eef3fc;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: inherit;
+            color: #1a3153;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #dce6f5;
+            border-color: #b7cbe8;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.primary {
+            background: #1d3a6b;
+            color: white;
+            box-shadow: 0 4px 10px rgba(20, 50, 100, 0.15);
+        }
+
+        .nav-btn.primary:hover:not(:disabled) {
+            background: #2b4f88;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #ccd9ec;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #31507a;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: inherit;
+        }
+
+        .reset-btn:hover {
+            background: #e1eaf8;
+            border-color: #9fb6db;
+        }
+
+        .score-badge {
+            background: #e1eaf5;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 15px;
+            color: #10335a;
+        }
+
+        .score-badge strong {
+            color: #0b2a4e;
+        }
+
+        /* итоговый слайд */
+        .final-slide {
+            text-align: center;
+            padding: 30px 10px 20px;
+        }
+        .final-slide .big-emoji {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .final-slide .final-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #0b2647;
+            margin-bottom: 10px;
+        }
+        .final-slide .final-sub {
+            font-size: 18px;
+            color: #2d4a72;
+            margin-bottom: 16px;
+        }
+        .final-slide .final-score {
+            font-size: 20px;
+            background: #eaf0fa;
+            padding: 8px 28px;
+            border-radius: 60px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .final-slide .final-message {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #1a3457;
+            padding: 16px 20px;
+            background: #f5f9ff;
+            border-radius: 24px;
+            border: 1px solid #d8e3f2;
+        }
+        .final-slide .final-message.success {
+            background: #e8f6ee;
+            border-color: #9fd0b5;
+        }
+        .final-slide .final-message.retry {
+            background: #fef2f0;
+            border-color: #f0c8c4;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 18px;
+            background: #1d3a6b;
+            color: white;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 80px;
+            font-size: 18px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(20, 50, 100, 0.25);
+            transition: 0.15s;
+            text-decoration: none;
+        }
+        .download-btn:hover {
+            background: #2b4f88;
+            transform: scale(1.02);
+        }
+        .download-btn i {
+            margin-right: 10px;
+        }
+
+        @media (max-width: 550px) {
+            .presentation-wrapper {
+                padding: 20px 16px;
+                border-radius: 28px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .option {
+                padding: 12px 16px;
+                font-size: 15px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .slide-nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-btn {
+                justify-content: center;
+            }
+            .final-slide .final-title {
+                font-size: 22px;
+            }
+            .download-btn {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-wrapper">
+    <div class="header">
+        <h1>📋 Тест 2026 <small>изменения</small></h1>
+        <span class="progress-indicator" id="slideCounter">1 / 5</span>
+    </div>
+
+    <div class="slide-container" id="slideContainer">
+        <!-- Слайды вставлены через JS -->
+    </div>
+
+    <div class="slide-nav">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="nav-btn" id="prevSlideBtn" disabled>← Назад</button>
+            <button class="nav-btn primary" id="nextSlideBtn">Вперёд →</button>
+            <button class="reset-btn" id="resetTestBtn">⟳ Сброс</button>
+        </div>
+        <div class="score-badge">✅ <strong id="scoreDisplay">0</strong> / 5</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- ВОПРОСЫ -----
+        const questions = [{
+            id: 0,
+            text: 'Вы перечисляете зарплату сотруднику, с которого по исполнительному листу удерживают алименты (ограничение удержания — не более 50% дохода). Какой код вида дохода нужно поставить в платежке?',
+            options: ['«2»', '«3»', '«1»'],
+            correct: 2,
+            explanation: 'код «1» ставится для зарплаты и иных доходов, в отношении которых в статье 99 Закона № 229-ФЗ установлены ограничения размера удержания.'
+        }, {
+            id: 1,
+            text: 'Вы выдаете сотруднику компенсацию за использование личного автомобиля в служебных целях. На этот доход по закону нельзя обратить взыскание. Какой код укажете в поле 20?',
+            options: ['«3»', '«2»', 'Код ставить не нужно.'],
+            correct: 1,
+            explanation: 'код «2» предназначен для доходов, на которые в соответствии со статьей 101 Закона № 229-ФЗ не может быть обращено взыскание, например, компенсационные выплаты.'
+        }, {
+            id: 2,
+            text: 'Если бухгалтер компании ошибся в коде вида дохода в зарплатной платежке, какой штраф грозит лично ему?',
+            options: ['От 50 тыс. до 100 тыс. руб.', 'От 15 тыс. до 20 тыс. руб.', 'От 3 тыс. до 5 тыс. руб.'],
+            correct: 1,
+            explanation: 'статья 17.14 КоАП — для бухгалтера штраф от 15 до 20 тысяч рублей, для компании от 50 до 100 тысяч'
+        }, {
+            id: 3,
+            text: 'С 1 сентября максимальный годовой лимит сверхурочной работы на одного сотрудника составляет 240 часов. Верно ли, что теперь любой работодатель может привлекать каждого сотрудника к переработкам на все эти 240 часов без исключений?',
+            options: [
+                'Да, верно. Лимит повышен для всех',
+                'Нет, базовый лимит в 120 часов сохраняется. Увеличение до 240 часов должно быть закреплено в коллективном договоре или соглашении',
+                'Все зависит от того, что прописано во внутренних документах компании'
+            ],
+            correct: 1,
+            explanation: 'чтобы увеличить лимит, работодатель обязан закрепить 240 часов в коллективном договоре или отраслевом соглашении. Базовый лимит в 120 часов сохраняется.'
+        }, {
+            id: 4,
+            text: 'С 1 сентября все документы по коммерческим перевозкам оформляют исключительно в электронном виде (ЭТрН), бумага больше не применяется ни при каких условиях. Верно ли это утверждение?',
+            options: [
+                'Да, верно',
+                'Нет, Минтранс установил случаи, когда накладную можно (нужно) подписывать на бумаге'
+            ],
+            correct: 1,
+            explanation: 'Минтранс установил случаи, когда накладную, как и раньше, подписывают на бумаге'
+        }];
+
+        // ----- СОСТОЯНИЕ -----
+        let currentSlide = 0;
+        const totalSlides = questions.length;
+        const totalWithFinal = totalSlides + 1;
+
+        let userAnswers = new Array(totalSlides).fill(null);
+        let answerStatus = new Array(totalSlides).fill(null);
+
+        const container = document.getElementById('slideContainer');
+        const prevBtn = document.getElementById('prevSlideBtn');
+        const nextBtn = document.getElementById('nextSlideBtn');
+        const resetBtn = document.getElementById('resetTestBtn');
+        const scoreSpan = document.getElementById('scoreDisplay');
+        const slideCounter = document.getElementById('slideCounter');
+
+        function getCorrectCount() {
+            let count = 0;
+            for (let i = 0; i < answerStatus.length; i++) {
+                if (answerStatus[i] === 'correct') count++;
+            }
+            return count;
+        }
+
+        function isAllAnswered() {
+            for (let i = 0; i < answerStatus.length; i++) {
+                if (answerStatus[i] === null) return false;
+            }
+            return true;
+        }
+
+        // ----- ОТРИСОВКА СЛАЙДОВ (включая финальный) -----
+        function renderSlides() {
+            let html = '';
+
+            // слайды с вопросами
+            questions.forEach((q, idx) => {
+                const selectedIdx = userAnswers[idx];
+                const status = answerStatus[idx];
+
+                let slideClass = 'slide';
+                if (idx === currentSlide) slideClass += ' active';
+
+                html += `<div class="${slideClass}" data-slide="${idx}">`;
+                html += `<div class="question-text">${q.text}</div>`;
+                html += `<div class="options">`;
+
+                q.options.forEach((opt, optIdx) => {
+                    let optionClass = 'option';
+                    let checkedAttr = (selectedIdx === optIdx) ? 'checked' : '';
+                    let disabledAttr = (status !== null) ? 'disabled' : '';
+
+                    if (status !== null) {
+                        optionClass += ' disabled-opt';
+                        if (optIdx === q.correct) {
+                            optionClass += ' correct-opt';
+                        } else if (selectedIdx === optIdx && selectedIdx !== q.correct) {
+                            optionClass += ' wrong-opt';
+                        }
+                    }
+
+                    html += `
+                        <label class="${optionClass}" data-q="${idx}" data-opt="${optIdx}">
+                            <input type="radio" name="q${idx}" value="${optIdx}" ${checkedAttr} ${disabledAttr}>
+                            ${opt}
+                        </label>
+                    `;
+                });
+
+                html += `</div>`;
+
+                let feedbackVisible = (status !== null) ? 'visible' : '';
+                let badgeClass = (status === 'correct') ? 'correct' : (status === 'wrong') ? 'wrong' : '';
+                let badgeText = (status === 'correct') ? '✓ Верно' : (status === 'wrong') ? '✗ Неверно' : '';
+
+                html += `
+                    <div class="feedback-box ${feedbackVisible}">
+                        <span class="badge ${badgeClass}">${badgeText}</span> &nbsp; 
+                        <strong>Обоснование:</strong> ${q.explanation}
+                    </div>
+                `;
+
+                html += `</div>`;
+            });
+
+            // ---- ФИНАЛЬНЫЙ СЛАЙД (индекс = totalSlides) ----
+            const finalIdx = totalSlides;
+            let finalSlideClass = 'slide';
+            if (currentSlide === finalIdx) finalSlideClass += ' active';
+
+            const correctCount = getCorrectCount();
+            const allDone = isAllAnswered();
+
+            let finalMessage = '';
+            let messageClass = '';
+            let showDownload = false;
+
+            if (allDone) {
+                if (correctCount >= 4) {
+                    finalMessage = '🎉 Отлично! Вы молодец и отлично знаете все изменения!';
+                    messageClass = 'success';
+                    showDownload = true;
+                } else {
+                    finalMessage = '😊 Хорошая попытка! Но чтобы лучше запомнить материал, пройдите тест ещё раз.';
+                    messageClass = 'retry';
+                }
+            } else {
+                finalMessage = 'Ответьте на все вопросы, чтобы увидеть результат.';
+                messageClass = '';
+            }
+
+            let downloadBlock = '';
+            if (showDownload) {
+                downloadBlock = `
+                    <div style="margin-top: 16px;">
+                        <button class="download-btn" id="downloadMethodBtn">📥 Скачать методичку (PDF)</button>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="${finalSlideClass}" data-slide="${finalIdx}">
+                    <div class="final-slide">
+                        <span class="big-emoji">📊</span>
+                        <div class="final-title">Итоги теста</div>
+                        <div class="final-sub">Вы ответили на ${allDone ? 'все' : 'не все'} вопросы</div>
+                        <div class="final-score">✅ ${correctCount} из ${totalSlides} правильных</div>
+                        <div class="final-message ${messageClass}">${finalMessage}</div>
+                        ${downloadBlock}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+            // обработчик для кнопки скачивания (PDF)
+            const downloadBtn = document.getElementById('downloadMethodBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Создаем ссылку для скачивания
+                    const link = document.createElement('a');
+                    link.href = 'metodichka.pdf';
+                    link.download = 'методичка_изменения_2_полугодия_2026.pdf';
+                    link.target = '_blank';
+                    
+                    // Обработка ошибок
+                    link.onerror = function() {
+                        alert('Файл методичка.pdf не найден. Пожалуйста, убедитесь, что файл находится в той же папке, что и этот HTML-файл.');
+                    };
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    // Удаляем ссылку после клика
+                    setTimeout(function() {
+                        document.body.removeChild(link);
+                    }, 100);
+                });
+            }
+
+            // обновить счётчик и счёт
+            updateCounterAndScore();
+
+            // события для option (только для вопросов, не для финального)
+            document.querySelectorAll('.option:not(.disabled-opt)').forEach(label => {
+                label.addEventListener('click', function(e) {
+                    const qIdx = parseInt(this.dataset.q);
+                    if (isNaN(qIdx)) return;
+                    if (answerStatus[qIdx] !== null) return;
+
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        radio.dispatchEvent(changeEvent);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.options input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const qIdx = parseInt(this.name.replace('q', ''));
+                    if (isNaN(qIdx)) return;
+                    if (answerStatus[qIdx] !== null) return;
+
+                    const selectedVal = parseInt(this.value);
+                    const isCorrect = (selectedVal === questions[qIdx].correct);
+
+                    userAnswers[qIdx] = selectedVal;
+                    answerStatus[qIdx] = isCorrect ? 'correct' : 'wrong';
+
+                    if (isAllAnswered()) {
+                        currentSlide = totalSlides;
+                        renderSlides();
+                        setActiveSlide(currentSlide);
+                    } else {
+                        renderSlides();
+                        setActiveSlide(currentSlide);
+                    }
+                });
+            });
+
+            updateNavButtons();
+        }
+
+        function setActiveSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+            updateCounterAndScore();
+            updateNavButtons();
+            const containerEl = document.getElementById('slideContainer');
+            if (containerEl) {
+                containerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function updateCounterAndScore() {
+            const total = totalWithFinal;
+            const displayNum = (currentSlide === totalSlides) ? total : currentSlide + 1;
+            slideCounter.textContent = `${displayNum} / ${total}`;
+            scoreSpan.textContent = getCorrectCount();
+        }
+
+        function updateNavButtons() {
+            const total = totalWithFinal;
+            prevBtn.disabled = (currentSlide === 0);
+            nextBtn.disabled = (currentSlide === total - 1);
+            if (currentSlide === totalSlides) {
+                nextBtn.textContent = '🏁 Завершено';
+            } else {
+                nextBtn.textContent = 'Вперёд →';
+            }
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= totalWithFinal) return;
+            setActiveSlide(index);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalWithFinal - 1) goToSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) goToSlide(currentSlide - 1);
+        }
+
+        function resetTest() {
+            userAnswers = new Array(totalSlides).fill(null);
+            answerStatus = new Array(totalSlides).fill(null);
+            currentSlide = 0;
+            renderSlides();
+            setActiveSlide(0);
+        }
+
+        // ----- ИНИЦИАЛИЗАЦИЯ -----
+        renderSlides();
+        setActiveSlide(0);
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+        resetBtn.addEventListener('click', resetTest);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextSlide();
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const wrapper = document.querySelector('.presentation-wrapper');
+        wrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        wrapper.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        }, { passive: true });
+
+    })();
+</script>
+
+</body>
+</html>
