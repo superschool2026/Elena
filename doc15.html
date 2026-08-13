@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Чек-лист: ФСБУ 9/2025</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f2f6fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      max-width: 780px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 12px 28px -8px rgba(0, 20, 40, 0.12);
+      padding: 28px 28px 24px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .header-icon {
+      font-size: 2rem;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .header h1 {
+      font-weight: 500;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: #0b1a2e;
+      line-height: 1.3;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1.5px solid #95cafa;
+      border-radius: 14px;
+      background: #ffffff;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: #142b40;
+      user-select: none;
+    }
+
+    .item:hover {
+      background: #f9fcff;
+      border-color: #7bb9f0;
+      box-shadow: 0 2px 8px rgba(149, 202, 250, 0.15);
+    }
+
+    .item-check {
+      flex-shrink: 0;
+      margin-top: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #b8d4f0;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.15s;
+      font-size: 14px;
+      line-height: 1;
+      color: white;
+    }
+
+    .item.active .item-check {
+      background: #1b3f5e;
+      border-color: #1b3f5e;
+    }
+    .item.active .item-check::after {
+      content: "✓";
+      color: white;
+      font-weight: 500;
+    }
+
+    .item.active {
+      border-color: #1b3f5e;
+      background: #f6faff;
+    }
+
+    .item-text {
+      flex: 1;
+    }
+
+    .actions {
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1.5px solid #e2eaf2;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .reset-btn {
+      background: transparent;
+      border: 1.5px solid #cbdae8;
+      border-radius: 30px;
+      padding: 5px 18px;
+      font-family: inherit;
+      font-weight: 450;
+      font-size: 0.78rem;
+      color: #2c4a6a;
+      cursor: pointer;
+      transition: 0.15s;
+      background: white;
+    }
+
+    .reset-btn:hover {
+      background: #ecf3fc;
+      border-color: #95cafa;
+    }
+
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .progress-label {
+      font-size: 0.78rem;
+      color: #5b6f87;
+      font-weight: 450;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: #e8eef5;
+      border-radius: 30px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 30px;
+      background: #4f9f7a;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.78rem;
+      font-weight: 450;
+      color: #1d314a;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 18px 14px;
+      }
+      .header h1 {
+        font-size: 1.2rem;
+      }
+      .header-icon {
+        font-size: 1.6rem;
+      }
+      .item {
+        font-size: 0.82rem;
+        padding: 8px 10px;
+      }
+      .progress-wrapper {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .actions {
+        flex-wrap: wrap;
+      }
+      .reset-btn {
+        flex: 1;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <span class="header-icon">📋</span>
+      <h1>Чек-лист подготовки к ФСБУ 9/2025</h1>
+    </div>
+
+    <div class="grid">
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Проанализировать действующие договоры с покупателями</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Определить товары, работы и услуги, которые компания передает покупателю</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Проверить наличие скидок, бонусов, возвратов и отсрочек платежа</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Установить момент передачи контроля и признания выручки</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Определить договоры, по которым выручка признается постепенно</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Обновить учетную политику и типовые договоры</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Настроить необходимые операции в программе 1С</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Провести тестовый расчет по нескольким реальным договорам</div>
+      </div>
+      <div class="item">
+        <div class="item-check"></div>
+        <div class="item-text">Обучить сотрудников и утвердить новые правила работы</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <div class="progress-wrapper">
+        <span class="progress-label">Выполнено</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">0%</span>
+      </div>
+      <button class="reset-btn" id="resetBtn">Снять все</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const items = document.querySelectorAll('.item');
+      const resetBtn = document.getElementById('resetBtn');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+
+      function updateProgress() {
+        const total = items.length;
+        const checked = document.querySelectorAll('.item.active').length;
+        const percent = Math.round((checked / total) * 100);
+        progressFill.style.width = percent + '%';
+        progressText.textContent = percent + '%';
+      }
+
+      items.forEach(item => {
+        item.addEventListener('click', function(e) {
+          this.classList.toggle('active');
+          updateProgress();
+        });
+      });
+
+      resetBtn.addEventListener('click', function() {
+        items.forEach(item => item.classList.remove('active'));
+        updateProgress();
+      });
+
+      updateProgress();
+    })();
+  </script>
+
+</body>
+</html>
