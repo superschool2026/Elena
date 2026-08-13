@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Чек-лист: ФСБУ 9/2025</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+  </script>
   <style>
     * {
       margin: 0;
@@ -144,6 +146,24 @@
       border-color: #95cafa;
     }
 
+    .pdf-btn {
+      background: #1b3f5e;
+      border: 1.5px solid #1b3f5e;
+      border-radius: 30px;
+      padding: 5px 20px;
+      font-family: inherit;
+      font-weight: 450;
+      font-size: 0.78rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .pdf-btn:hover {
+      background: #2a5a7a;
+      border-color: #2a5a7a;
+    }
+
     .progress-wrapper {
       display: flex;
       align-items: center;
@@ -204,7 +224,8 @@
       .actions {
         flex-wrap: wrap;
       }
-      .reset-btn {
+      .reset-btn,
+      .pdf-btn {
         flex: 1;
         text-align: center;
       }
@@ -213,7 +234,7 @@
 </head>
 <body>
 
-  <div class="card">
+  <div class="card" id="checklist">
     <div class="header">
       <span class="header-icon">📋</span>
       <h1>Чек-лист подготовки к ФСБУ 9/2025</h1>
@@ -267,6 +288,7 @@
         <span class="progress-text" id="progressText">0%</span>
       </div>
       <button class="reset-btn" id="resetBtn">Снять все</button>
+      <button class="pdf-btn" id="pdfBtn">⬇ Скачать PDF</button>
     </div>
   </div>
 
@@ -274,6 +296,7 @@
     (function() {
       const items = document.querySelectorAll('.item');
       const resetBtn = document.getElementById('resetBtn');
+      const pdfBtn = document.getElementById('pdfBtn');
       const progressFill = document.getElementById('progressFill');
       const progressText = document.getElementById('progressText');
 
@@ -285,6 +308,7 @@
         progressText.textContent = percent + '%';
       }
 
+      // Галочки
       items.forEach(item => {
         item.addEventListener('click', function(e) {
           this.classList.toggle('active');
@@ -295,6 +319,61 @@
       resetBtn.addEventListener('click', function() {
         items.forEach(item => item.classList.remove('active'));
         updateProgress();
+      });
+
+      // PDF — скачиваем с сохранением галочек
+      pdfBtn.addEventListener('click', function() {
+        const element = document.getElementById('checklist');
+
+        const clone = element.cloneNode(true);
+        clone.classList.add('pdf-content');
+
+        // Убираем кнопки из клона
+        const actionsClone = clone.querySelector('.actions');
+        if (actionsClone) {
+          const resetBtnClone = actionsClone.querySelector('.reset-btn');
+          const pdfBtnClone = actionsClone.querySelector('.pdf-btn');
+          if (resetBtnClone) resetBtnClone.remove();
+          if (pdfBtnClone) pdfBtnClone.remove();
+        }
+
+        // Добавляем дату
+        const footer = document.createElement('div');
+        footer.style.cssText =
+          'margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2eaf2; font-size: 0.7rem; color: #8a9bb0; text-align: center;';
+        footer.textContent = 'Чек-лист подготовки к ФСБУ 9/2025 • ' + new Date().toLocaleDateString('ru-RU');
+        clone.appendChild(footer);
+
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position: absolute; left: -9999px; top: 0; width: 780px; background: white; padding: 20px;';
+        wrapper.appendChild(clone);
+        document.body.appendChild(wrapper);
+
+        const opt = {
+          margin: 10,
+          filename: 'Чек-лист_ФСБУ_9_2025.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: 780,
+            height: clone.scrollHeight + 100
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(clone).save().then(function() {
+          document.body.removeChild(wrapper);
+        }).catch(function(err) {
+          console.error('Ошибка PDF:', err);
+          document.body.removeChild(wrapper);
+        });
       });
 
       updateProgress();
