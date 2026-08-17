@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Дорожная карта · Честный ЗНАК</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f5f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.02);
+      padding: 40px 40px 48px;
+    }
+
+    h1 {
+      font-weight: 500;
+      font-size: 28px;
+      letter-spacing: -0.3px;
+      color: #1a2639;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Дорожная карта */
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .step-wrapper {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Линия между шагами */
+    .step-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 44px;
+      bottom: 0;
+      width: 2.5px;
+      background: #e3edf9;
+      z-index: 1;
+      transition: background 0.4s;
+    }
+
+    .step-wrapper:last-child::before {
+      display: none;
+    }
+
+    .step-wrapper.completed::before {
+      background: #95CAFA;
+    }
+
+    /* Круг с номером / галочкой */
+    .step-circle {
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: white;
+      border: 2.5px solid #d9e2f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: #8a99b0;
+      z-index: 2;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    .step-circle:hover {
+      border-color: #95CAFA;
+      background: #f2f9ff;
+    }
+
+    .step-wrapper.completed .step-circle {
+      border-color: #2b8c5e;
+      background: #e8f5ee;
+      color: #2b8c5e;
+      font-size: 20px;
+    }
+
+    .step-wrapper.active .step-circle {
+      border-color: #1f3a6b;
+      background: #f0f4fe;
+      color: #1f3a6b;
+      box-shadow: 0 0 0 6px rgba(31, 58, 107, 0.06);
+    }
+
+    /* Блок с содержимым шага */
+    .step-content {
+      flex: 1;
+      margin-left: 18px;
+      padding: 10px 0 10px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f4fc;
+      transition: opacity 0.2s;
+    }
+
+    .step-wrapper:last-child .step-content {
+      border-bottom: none;
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 500;
+      color: #1a2639;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .step-title .step-number {
+      font-weight: 400;
+      color: #8a99b0;
+      font-size: 14px;
+      background: #f2f6fc;
+      padding: 2px 12px;
+      border-radius: 30px;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: #6a7a8e;
+      margin-top: 2px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .step-wrapper.completed .step-title {
+      color: #2b8c5e;
+    }
+
+    .step-wrapper.completed .step-desc {
+      color: #6a9a7e;
+    }
+
+    /* Модальное окно */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      max-width: 560px;
+      width: 100%;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
+      padding: 36px 36px 32px;
+      position: relative;
+      animation: modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #8a99b0;
+      cursor: pointer;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #1a2639;
+    }
+
+    .modal-step-badge {
+      display: inline-block;
+      background: #f0f4fe;
+      color: #1f3a6b;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 4px 16px;
+      border-radius: 40px;
+      border: 1px solid #d9e6fa;
+      margin-bottom: 16px;
+    }
+
+    .modal h2 {
+      font-weight: 500;
+      font-size: 22px;
+      color: #1a2639;
+      margin-bottom: 14px;
+      letter-spacing: -0.2px;
+    }
+
+    .modal p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #2d3a4f;
+      margin-bottom: 18px;
+    }
+
+    .modal ul {
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    .modal ul li {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #2d3a4f;
+      margin-bottom: 6px;
+    }
+
+    .modal .btn-primary {
+      background: #1f3a6b;
+      border: none;
+      color: white;
+      padding: 10px 32px;
+      border-radius: 60px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 480;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 4px 12px rgba(31, 58, 107, 0.1);
+    }
+
+    .modal .btn-primary:hover {
+      background: #2b4a7e;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(31, 58, 107, 0.12);
+    }
+
+    .modal .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .modal .btn-primary.success {
+      background: #2b8c5e;
+    }
+
+    .modal .btn-primary.success:hover {
+      background: #327a55;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .modal .btn-outline {
+      background: transparent;
+      border: 1.5px solid #d9e2f0;
+      padding: 10px 32px;
+      border-radius: 60px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 480;
+      color: #1f2a40;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal .btn-outline:hover {
+      background: #f2f7ff;
+      border-color: #95CAFA;
+    }
+
+    /* Статистика */
+    .progress-bar {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #eef3f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .progress-text {
+      font-size: 15px;
+      color: #5b677b;
+      font-weight: 400;
+    }
+
+    .progress-text strong {
+      color: #1a2639;
+      font-weight: 500;
+    }
+
+    .progress-track {
+      flex: 1;
+      min-width: 120px;
+      height: 6px;
+      background: #eef3f9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #95CAFA;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .reset-btn {
+      background: transparent;
+      border: 1.5px solid #d9e2f0;
+      padding: 8px 20px;
+      border-radius: 60px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 450;
+      color: #5b677b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .reset-btn:hover {
+      background: #f2f7ff;
+      border-color: #95CAFA;
+      color: #1a2639;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 24px 18px 28px;
+        border-radius: 28px;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 24px;
+      }
+      .step-circle {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+      }
+      .step-wrapper::before {
+        left: 19px;
+        top: 36px;
+      }
+      .step-content {
+        margin-left: 12px;
+        padding: 6px 0;
+      }
+      .step-title {
+        font-size: 15px;
+      }
+      .step-desc {
+        font-size: 13px;
+      }
+      .modal {
+        padding: 28px 22px 26px;
+        margin: 12px;
+      }
+      .modal h2 {
+        font-size: 19px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px 12px 22px;
+        border-radius: 24px;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+      .step-circle {
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+      }
+      .step-wrapper::before {
+        left: 16px;
+        top: 30px;
+      }
+      .step-content {
+        margin-left: 10px;
+      }
+      .step-title {
+        font-size: 14px;
+      }
+      .step-desc {
+        font-size: 12px;
+      }
+      .progress-text {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🗺️ Дорожная карта</h1>
+
+  <div class="roadmap" id="roadmap"></div>
+
+  <div class="progress-bar">
+    <span class="progress-text">Прогресс: <strong id="progressCount">0</strong> из <span id="totalSteps">8</span></span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <button class="reset-btn" id="resetBtn">↻ Сбросить</button>
+  </div>
+</div>
+
+<!-- Модальное окно -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-step-badge" id="modalBadge">Шаг 1</div>
+    <h2 id="modalTitle">Заголовок</h2>
+    <div id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="modalCloseBtn">Закрыть</button>
+      <button class="btn-primary" id="modalCompleteBtn">✓ Отметить пройденным</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Данные шагов
+    const STEPS = [
+      {
+        id: 1,
+        title: 'Получите подпись',
+        desc: 'Убедитесь, что у вас есть усиленная квалифицированная электронная подпись и необходимое ПО.',
+        details: `
+          <p>Для начала проверьте, действует ли усиленная квалифицированная электронная подпись и есть ли к ней программное обеспечение.</p>
+          <p>Если нет — получите подпись и установите нужные программы.</p>
+        `
+      },
+      {
+        id: 2,
+        title: 'Зарегистрируйтесь',
+        desc: 'Перейдите на сайт markirovka.crpt.ru/register и создайте учётную запись.',
+        details: `
+          <p>Зарегистрируйтесь в системе «Честный ЗНАК» по адресу <strong>markirovka.crpt.ru/register</strong>.</p>
+          <ul>
+            <li>Нажмите ссылку «Зарегистрируйтесь».</li>
+            <li>Выберите усиленную квалифицированную электронную подпись генерального директора в поле «Электронная подпись».</li>
+            <li>Проверьте адрес электронной почты.</li>
+          </ul>
+        `
+      },
+      {
+        id: 3,
+        title: 'Подайте заявку в ассоциацию',
+        desc: 'Станьте участником Ассоциации ГС1 РУС для регистрации товаров.',
+        details: `
+          <p>Станьте участником <strong>Ассоциации автоматической идентификации ГС1 РУС</strong> — именно там регистрируют все товары.</p>
+          <p>Подать заявку можно из личного кабинета: вкладка «Национальный каталог» → «Вступить в Ассоциацию ГС1 РУС».</p>
+          <ul>
+            <li>В первой вкладке информация о компании уже будет заполнена. Укажите подписанта, ОКВЭД, КПП, телефон.</li>
+            <li>Во второй — банковские реквизиты.</li>
+            <li>В третьей — адреса.</li>
+            <li>В четвёртой — планируемый объём маркировки (сектор: молочная продукция).</li>
+          </ul>
+        `
+      },
+      {
+        id: 4,
+        title: 'Опишите товары',
+        desc: 'Создайте карточки товаров в разделе «Каталог» личного кабинета.',
+        details: `
+          <p>В личном кабинете в разделе <strong>«Каталог»</strong> появится список товаров, которые вы производите и будете маркировать.</p>
+          <ul>
+            <li>Список автоматически подгружается из системы ГС1 РУС.</li>
+            <li>Чтобы создать карточку, во вкладке «Добавить» выберите комплект или единицу товара.</li>
+            <li>Сгенерируйте код товара, выберите код группы ТН ВЭД, товарный знак и укажите наименование.</li>
+          </ul>
+          <p><em>Самостоятельно удалить карточку нельзя — нужно обратиться в техподдержку.</em></p>
+        `
+      },
+      {
+        id: 5,
+        title: 'Заполните расширенную карточку',
+        desc: 'Укажите все обязательные поля и отправьте на модерацию.',
+        details: `
+          <p>Заполните расширенную карточку товара:</p>
+          <ul>
+            <li>Единица измерения, вес или объём.</li>
+            <li>Тип продукта, происхождение сырья, жирность, состав.</li>
+            <li>Отметка о том, является ли товар детским питанием.</li>
+          </ul>
+          <p>Обязательные поля отмечены красным. После заполнения отправьте карточку на модерацию.</p>
+        `
+      },
+      {
+        id: 6,
+        title: 'Закажите коды маркировки',
+        desc: 'Создайте заказ в «Станции управления заказами» и получите коды.',
+        details: `
+          <p>В разделе <strong>«Станция управления заказами»</strong> создайте новый заказ:</p>
+          <ul>
+            <li>Товарная группа: «Молочная продукция».</li>
+            <li>Способ выпуска: «Произведен в РФ».</li>
+            <li>Укажите код товара из каталога.</li>
+            <li>Выберите способ формирования серийных номеров (рекомендуется автоматический).</li>
+            <li>Укажите количество кодов.</li>
+          </ul>
+          <p>Подпишите заказ и дождитесь обработки (до 4 часов). После этого выгрузите и распечатайте коды.</p>
+        `
+      },
+      {
+        id: 7,
+        title: 'Заполните отчёт о нанесении кодов',
+        desc: 'Отредактируйте черновик отчёта и отправьте на проверку.',
+        details: `
+          <p>В разделе <strong>«Документы»</strong> сохраняется черновик отчёта после печати кодов.</p>
+          <ul>
+            <li>Отредактируйте его, укажите срок годности продукта.</li>
+            <li>Заверьте документ электронной подписью.</li>
+            <li>Отправьте на проверку.</li>
+          </ul>
+        `
+      },
+      {
+        id: 8,
+        title: 'Введите товар в оборот',
+        desc: 'Создайте документ о вводе продукции в оборот и отправьте его.',
+        details: `
+          <p>В разделе <strong>«Документы»</strong> создайте новый документ о вводе в оборот.</p>
+          <ul>
+            <li>Выберите «Производство в РФ» — данные о компании заполнятся автоматически.</li>
+            <li>Добавьте товары из списка, отредактируйте сведения (код номенклатуры, дата производства).</li>
+            <li>Подпишите документ и отправьте на обработку.</li>
+          </ul>
+        `
+      }
+    ];
+
+    let completed = new Array(STEPS.length).fill(false);
+    let activeStep = null;
+
+    const roadmapEl = document.getElementById('roadmap');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalClose = document.getElementById('modalClose');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalCompleteBtn = document.getElementById('modalCompleteBtn');
+    const modalBadge = document.getElementById('modalBadge');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const progressCount = document.getElementById('progressCount');
+    const totalSteps = document.getElementById('totalSteps');
+    const progressFill = document.getElementById('progressFill');
+    const resetBtn = document.getElementById('resetBtn');
+
+    totalSteps.textContent = STEPS.length;
+
+    function renderRoadmap() {
+      roadmapEl.innerHTML = '';
+      STEPS.forEach((step, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'step-wrapper';
+        if (completed[index]) wrapper.classList.add('completed');
+
+        const circle = document.createElement('div');
+        circle.className = 'step-circle';
+        circle.textContent = completed[index] ? '✓' : step.id;
+        circle.dataset.index = index;
+        circle.addEventListener('click', () => openModal(index));
+
+        const content = document.createElement('div');
+        content.className = 'step-content';
+        content.dataset.index = index;
+        content.addEventListener('click', () => openModal(index));
+
+        const title = document.createElement('div');
+        title.className = 'step-title';
+        const numSpan = document.createElement('span');
+        numSpan.className = 'step-number';
+        numSpan.textContent = `Шаг ${step.id}`;
+        title.appendChild(numSpan);
+        title.appendChild(document.createTextNode(step.title));
+
+        const desc = document.createElement('div');
+        desc.className = 'step-desc';
+        desc.textContent = step.desc;
+
+        content.appendChild(title);
+        content.appendChild(desc);
+
+        wrapper.appendChild(circle);
+        wrapper.appendChild(content);
+        roadmapEl.appendChild(wrapper);
+      });
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const done = completed.filter(Boolean).length;
+      progressCount.textContent = done;
+      const pct = STEPS.length ? (done / STEPS.length) * 100 : 0;
+      progressFill.style.width = pct + '%';
+    }
+
+    function openModal(index) {
+      activeStep = index;
+      const step = STEPS[index];
+      modalBadge.textContent = `Шаг ${step.id}`;
+      modalTitle.textContent = step.title;
+      modalBody.innerHTML = step.details;
+
+      if (completed[index]) {
+        modalCompleteBtn.textContent = '✓ Уже пройдено';
+        modalCompleteBtn.className = 'btn-primary success';
+        modalCompleteBtn.disabled = true;
+      } else {
+        modalCompleteBtn.textContent = '✓ Отметить пройденным';
+        modalCompleteBtn.className = 'btn-primary';
+        modalCompleteBtn.disabled = false;
+      }
+
+      modalOverlay.classList.add('open');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('open');
+      activeStep = null;
+    }
+
+    function markCompleted() {
+      if (activeStep === null) return;
+      if (completed[activeStep]) return;
+      completed[activeStep] = true;
+      renderRoadmap();
+      closeModal();
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalCompleteBtn.addEventListener('click', markCompleted);
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Сбросить все шаги?')) {
+        completed = completed.map(() => false);
+        renderRoadmap();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    renderRoadmap();
+  })();
+</script>
+</body>
+</html>
