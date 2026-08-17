@@ -1,667 +1,753 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>НДС-тренажер</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Маркировка товаров · тренажер</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            background: linear-gradient(145deg, #f4f7fc 0%, #eaf0f8 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-            padding: 16px;
-        }
+    body {
+      background: #f5f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 12px;
+    }
 
-        .card {
-            max-width: 860px;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 28px;
-            box-shadow: 0 16px 40px -10px rgba(0, 20, 30, 0.18);
-            padding: 22px 28px 20px;
-            position: relative;
-        }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+      padding: 20px 20px 24px;
+    }
 
-        /* Желтая лампочка-иконка вверху */
-        .bulb-icon {
-            position: absolute;
-            top: 20px;
-            right: 28px;
-            background: #f7d44a;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(247, 212, 74, 0.5);
-            transition: 0.2s;
-            z-index: 10;
-            animation: pulse 1.5s infinite;
-        }
+    h1 {
+      font-weight: 500;
+      font-size: 22px;
+      letter-spacing: -0.3px;
+      color: #1a2639;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .bulb-icon:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 24px rgba(247, 212, 74, 0.7);
-        }
+    .subhead {
+      font-size: 13px;
+      color: #5b677b;
+      font-weight: 400;
+      border-left: 3px solid #95CAFA;
+      padding-left: 14px;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
 
-        .bulb-icon.show {
-            display: flex;
-        }
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
+    .column {
+      background: white;
+      border-radius: 14px;
+      border: 1.5px solid #eef2f7;
+      padding: 8px 8px 10px;
+      transition: border 0.15s;
+    }
 
-        /* Модальное окно с решением */
-        .solution-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    .column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
 
-        .solution-modal.show {
-            display: flex;
-        }
+    .column-header h2 {
+      font-weight: 500;
+      font-size: 13px;
+      color: #1f2a3f;
+      letter-spacing: -0.1px;
+    }
 
-        .solution-modal .modal-content {
-            background: #fffbe6;
-            border-radius: 20px;
-            max-width: 700px;
-            width: 100%;
-            padding: 28px 32px 24px;
-            border: 2px solid #f7d44a;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalFade 0.3s ease;
-        }
+    .badge {
+      background: #f0f4fe;
+      color: #1f3a6b;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 1px 8px;
+      border-radius: 20px;
+      border: 1px solid #d9e6fa;
+    }
 
-        @keyframes modalFade {
-            from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
+    .dropzone {
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 2px 0;
+    }
 
-        .solution-modal .modal-title {
-            font-weight: 700;
-            color: #8a7a2a;
-            font-size: 20px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .card {
+      background: white;
+      border: 1.5px solid #95CAFA;
+      border-radius: 12px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 450;
+      color: #1c263b;
+      box-shadow: 0 1px 4px rgba(149, 202, 250, 0.06);
+      cursor: grab;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.2s, border-color 0.2s;
+      line-height: 1.25;
+      letter-spacing: -0.05px;
+      word-break: break-word;
+    }
 
-        .solution-modal .modal-title .icon {
-            font-size: 28px;
-        }
+    .card:active {
+      cursor: grabbing;
+      box-shadow: 0 4px 10px rgba(149, 202, 250, 0.18);
+      transform: scale(0.97);
+    }
 
-        .solution-modal .solution-line {
-            font-size: 13.5px;
-            color: #3a3a2a;
-            line-height: 2;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(247, 212, 74, 0.3);
-        }
+    .card.dragging {
+      opacity: 0.3;
+      transform: scale(0.94);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
 
-        .solution-modal .solution-line:last-child {
-            border-bottom: none;
-        }
+    .card.correct {
+      border-color: #2b8c5e;
+      background: #e8f5ee;
+      box-shadow: 0 1px 6px rgba(43, 140, 94, 0.1);
+    }
 
-        .solution-modal .solution-line .step-label {
-            color: #4a4a3a;
-            font-weight: 600;
-        }
+    .card.wrong {
+      border-color: #c73a3a;
+      background: #fdeaea;
+      box-shadow: 0 1px 6px rgba(199, 58, 58, 0.1);
+    }
 
-        .solution-modal .solution-line .formula {
-            font-weight: 500;
-            color: #1a4b6e;
-            background: #eef4fc;
-            padding: 0 6px;
-            border-radius: 4px;
-        }
+    .column.drag-over .dropzone {
+      background: #f2f9ff;
+      border-radius: 8px;
+      padding: 2px 2px;
+    }
 
-        .solution-modal .solution-line .answer {
-            font-weight: 700;
-            color: #1a7a4a;
-            background: #e6f5ed;
-            padding: 0 8px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+    .column.drag-over {
+      border-color: #95CAFA;
+      background: #fafdff;
+    }
 
-        .solution-modal .close-modal {
-            margin-top: 18px;
-            background: #1a2b44;
-            border: none;
-            padding: 10px 32px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 500;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', 'Inter', sans-serif;
-            width: 100%;
-        }
+    .slider-section {
+      margin-top: 4px;
+      margin-bottom: 12px;
+      background: #fafdff;
+      border-radius: 18px;
+      padding: 6px 10px 8px;
+      border: 1.5px solid #e3edf9;
+    }
 
-        .solution-modal .close-modal:hover {
-            background: #253b5a;
-        }
+    .slider-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
 
-        .task {
-            background: #f6faff;
-            border-radius: 16px;
-            padding: 16px 20px 14px;
-            margin-bottom: 18px;
-            border: 1px solid #e3effa;
-            padding-right: 80px;
-        }
+    .slider-btn {
+      background: white;
+      border: 1.5px solid #d9e2f0;
+      border-radius: 24px;
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #1f2a40;
+      transition: all 0.15s;
+      font-weight: 300;
+      line-height: 1;
+      user-select: none;
+    }
 
-        .task p {
-            font-size: 13px;
-            line-height: 1.7;
-            color: #14243e;
-            margin-bottom: 4px;
-        }
+    .slider-btn:hover {
+      background: #f2f7ff;
+      border-color: #95CAFA;
+    }
 
-        .task p:last-of-type {
-            margin-bottom: 0;
-        }
+    .slider-btn:active {
+      transform: scale(0.92);
+    }
 
-        .task .highlight {
-            font-weight: 600;
-            color: #0f2844;
-            background: #eaf4ff;
-            padding: 0 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-            font-size: 12.5px;
-        }
+    .slider-btn:disabled {
+      opacity: 0.2;
+      pointer-events: none;
+    }
 
-        .grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+    .slider-track-wrapper {
+      overflow: hidden;
+      border-radius: 14px;
+      padding: 1px 0;
+    }
 
-        .task-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fafcff;
-            border-radius: 12px;
-            padding: 8px 14px 8px 16px;
-            border: 1px solid #eaf2fc;
-            transition: 0.15s;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .slider-track {
+      display: flex;
+      gap: 6px;
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+      padding: 2px 1px;
+    }
 
-        .task-item:hover {
-            border-color: #d4e4f5;
-            background: #f8fcff;
-        }
+    .slider-card {
+      flex: 0 0 auto;
+      width: 150px;
+      background: white;
+      border: 1.5px solid #95CAFA;
+      border-radius: 14px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 450;
+      color: #1c263b;
+      box-shadow: 0 1px 4px rgba(149, 202, 250, 0.04);
+      cursor: grab;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.2s, border-color 0.2s;
+      line-height: 1.25;
+      letter-spacing: -0.05px;
+      word-break: break-word;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
 
-        .task-item .step-label {
-            font-size: 12.5px;
-            color: #14243e;
-            line-height: 1.5;
-            flex: 1;
-            min-width: 200px;
-        }
+    .slider-card:active {
+      cursor: grabbing;
+      box-shadow: 0 4px 10px rgba(149, 202, 250, 0.14);
+      transform: scale(0.97);
+    }
 
-        .task-item .step-label .num {
-            color: #2b6c9e;
-            font-weight: 500;
-            margin-right: 2px;
-        }
+    .slider-card.dragging {
+      opacity: 0.25;
+      transform: scale(0.93);
+    }
 
-        .task-item .input-row {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 6px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
+    .slider-card.empty-message {
+      border-style: dashed;
+      border-color: #d0dcee;
+      color: #7a88a0;
+      background: #f8fbff;
+      cursor: default;
+      justify-content: center;
+      font-weight: 400;
+      width: 100%;
+      min-height: 40px;
+      padding: 6px 12px;
+    }
 
-        .task-item .input-row input {
-            padding: 4px 10px;
-            border: 1.5px solid #95CAFA;
-            border-radius: 40px;
-            font-size: 12.5px;
-            font-weight: 400;
-            background: white;
-            transition: 0.2s;
-            font-family: 'Segoe UI', 'Inter', sans-serif;
-            color: #0b1a2b;
-            outline: none;
-            box-shadow: 0 2px 6px rgba(149, 202, 250, 0.06);
-            width: 100px;
-            text-align: center;
-        }
+    .slider-card.empty-message:active {
+      transform: none;
+      box-shadow: none;
+      cursor: default;
+    }
 
-        .task-item .input-row input::placeholder {
-            color: #b8ccdf;
-            font-size: 11px;
-        }
+    .slider-card.correct {
+      border-color: #2b8c5e;
+      background: #e8f5ee;
+    }
 
-        .task-item .input-row input:focus {
-            border-color: #6fb0f0;
-            box-shadow: 0 0 0 3px rgba(149, 202, 250, 0.15);
-        }
+    .slider-card.wrong {
+      border-color: #c73a3a;
+      background: #fdeaea;
+    }
 
-        .task-item .input-row input.correct {
-            border-color: #2b9c6e;
-            background: #effaf4;
-            box-shadow: 0 0 0 3px rgba(43, 156, 110, 0.12);
-        }
+    .footer-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid #eef3f9;
+      padding-top: 14px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-        .task-item .input-row input.wrong {
-            border-color: #d45a6a;
-            background: #fff3f4;
-            box-shadow: 0 0 0 3px rgba(212, 90, 106, 0.12);
-        }
+    .btn {
+      background: white;
+      border: 1.5px solid #d9e2f0;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 480;
+      color: #1f2a40;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: -0.05px;
+      min-width: 80px;
+      text-align: center;
+    }
 
-        .task-item .input-row .badge {
-            font-size: 11.5px;
-            color: #3e526b;
-            background: #eef4fc;
-            padding: 1px 8px;
-            border-radius: 30px;
-            white-space: nowrap;
-            font-weight: 400;
-        }
+    .btn-primary {
+      background: #1f3a6b;
+      border-color: #1f3a6b;
+      color: white;
+      box-shadow: 0 2px 8px rgba(31, 58, 107, 0.08);
+    }
 
-        .actions {
-            margin-top: 16px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            border-top: 1px solid rgba(149, 202, 250, 0.2);
-            padding-top: 14px;
-        }
+    .btn-primary:hover {
+      background: #2b4a7e;
+      border-color: #2b4a7e;
+      box-shadow: 0 4px 12px rgba(31, 58, 107, 0.12);
+      transform: translateY(-1px);
+    }
 
-        .status {
-            font-size: 12px;
-            color: #2a405c;
-            background: #f0f6fe;
-            padding: 3px 16px;
-            border-radius: 40px;
-        }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
 
-        .status.success {
-            background: #e6f5ed;
-            color: #1a7a4a;
-        }
+    .btn-primary.success {
+      background: #2b8c5e;
+      border-color: #2b8c5e;
+    }
 
-        .status.error {
-            background: #fff3f4;
-            color: #b84a5a;
-        }
+    .btn-primary.partial {
+      background: #c77d1e;
+      border-color: #c77d1e;
+    }
 
-        .btn {
-            background: white;
-            border: 1.5px solid #95CAFA;
-            padding: 7px 28px;
-            border-radius: 60px;
-            font-size: 12.5px;
-            font-weight: 500;
-            color: #1a2b44;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', 'Inter', sans-serif;
-            background: #f5faff;
-        }
+    .btn-outline {
+      background: transparent;
+      border-color: #d0dcee;
+    }
 
-        .btn:hover {
-            background: #e5f2ff;
-            border-color: #6ba8e0;
-            box-shadow: 0 8px 14px -6px rgba(149, 202, 250, 0.3);
-            transform: scale(1.01);
-        }
+    .btn-outline:hover {
+      background: #f2f7ff;
+      border-color: #95CAFA;
+    }
 
-        .btn-primary {
-            background: #1a2b44;
-            border-color: #1a2b44;
-            color: white;
-            box-shadow: 0 4px 10px rgba(26, 43, 68, 0.12);
-        }
+    .reset-btn {
+      margin-right: auto;
+    }
 
-        .btn-primary:hover {
-            background: #253b5a;
-            border-color: #253b5a;
-            color: white;
-        }
+    @media (max-width: 1024px) {
+      .columns {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .container {
+        padding: 16px 14px 18px;
+      }
+      .slider-card {
+        width: 130px;
+      }
+    }
 
-        .btn-reset {
-            background: #f0f2f5;
-            border-color: #c8cdd4;
-            color: #3a4a5a;
-            padding: 7px 20px;
-        }
-
-        .btn-reset:hover {
-            background: #e5e8ed;
-            border-color: #b0b8c0;
-        }
-
-        @media (max-width: 600px) {
-            .card { padding: 14px 12px; }
-            .task { padding-right: 60px; }
-            .task-item { 
-                flex-direction: column; 
-                align-items: stretch; 
-                padding: 8px 12px; 
-            }
-            .task-item .input-row { 
-                justify-content: flex-end; 
-                flex-wrap: wrap; 
-            }
-            .task-item .input-row input { 
-                width: 100%; 
-                max-width: 140px;
-            }
-            .task { padding: 12px 14px; }
-            .actions { 
-                flex-direction: column-reverse; 
-                align-items: stretch; 
-                gap: 8px;
-            }
-            .btn { width: 100%; justify-content: center; }
-            .task p {
-                font-size: 12px;
-            }
-            .actions .status {
-                text-align: center;
-            }
-            .bulb-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 22px;
-                top: 14px;
-                right: 14px;
-            }
-            .solution-modal .modal-content {
-                padding: 20px 18px;
-                margin: 10px;
-            }
-            .solution-modal .solution-line {
-                font-size: 12px;
-                line-height: 1.8;
-            }
-        }
-    </style>
+    @media (max-width: 640px) {
+      .columns {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .container {
+        padding: 12px 10px 14px;
+        border-radius: 20px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .footer-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .reset-btn {
+        margin-right: 0;
+      }
+      .slider-card {
+        width: 110px;
+        font-size: 11px;
+        padding: 6px 10px;
+        min-height: 36px;
+      }
+      .slider-controls {
+        justify-content: center;
+      }
+      .card {
+        font-size: 11px;
+        padding: 6px 8px;
+      }
+      .column-header h2 {
+        font-size: 12px;
+      }
+      .btn {
+        min-width: 60px;
+        font-size: 12px;
+        padding: 5px 14px;
+      }
+    }
+  </style>
 </head>
 <body>
+<div class="container">
+  <h1>📦 Маркировка товаров</h1>
+  <div class="subhead">
+    Перетащите карточку в колонку с нужной датой
+  </div>
 
-<div class="card">
+  <div class="columns" id="columnsContainer">
+    <!-- 4 колонки -->
+  </div>
 
-    <!-- Желтая лампочка-иконка (появляется при ошибке) -->
-    <div class="bulb-icon" id="bulbIcon" title="Нажмите для просмотра решения">
-        💡
+  <!-- Слайдер -->
+  <div class="slider-section" id="sliderSection">
+    <div class="slider-controls">
+      <button class="slider-btn" id="sliderPrev">‹</button>
+      <button class="slider-btn" id="sliderNext">›</button>
     </div>
-
-    <div class="task">
-        <p>Ваша компания сдает во временное пользование недвижимость, в том числе иностранным гражданам и аккредитованным в России организациям. Последние операции не облагаются НДС.</p>
-        <p>За 1 квартал вы получили выручку по облагаемым операциям <span class="highlight">2 440 000 руб.</span>, в том числе НДС (22%) — <span class="highlight">440 000 руб.</span>, и <span class="highlight">450 500 руб.</span> — по сделкам, освобожденным от налогообложения.</p>
-        <p>Входной НДС — <span class="highlight">120 500 руб.</span></p>
-        <p>Расходы за 1 квартал составили <span class="highlight">1 450 500 руб.</span></p>
-        <p>Прямые затраты по операциям с НДС — <span class="highlight">540 500 руб.</span></p>
-        <p>Прямые затраты по операциям без НДС — <span class="highlight">209 500 руб.</span></p>
-        <p>Общепроизводственные расходы в общей стоимости всех услуг — <span class="highlight">300 450 руб.</span>, Административные расходы — <span class="highlight">200 000 руб.</span></p>
+    <div class="slider-track-wrapper">
+      <div class="slider-track" id="sliderTrack"></div>
     </div>
+  </div>
 
-    <!-- Модальное окно с решением -->
-    <div class="solution-modal" id="solutionModal">
-        <div class="modal-content">
-            <div class="modal-title">
-                <span class="icon">💡</span> Верное решение
-            </div>
-            <div class="solution-line">
-                <span class="step-label">1. Административные расходы:</span><br />
-                <span class="formula">200 000 × (209 500 / 750 000)</span> = <span class="answer">55 867 руб.</span><br />
-                <span style="color:#8a7a3a; font-size:12px;">(общепроизводственные: 300 450 × (209 500 / 750 000) = 83 926 руб.)</span>
-            </div>
-            <div class="solution-line">
-                <span class="step-label">2. Доля затрат по необлагаемым НДС операциям:</span><br />
-                <span class="formula">(209 500 + 83 926 + 55 867) / 1 450 500 × 100%</span> = <span class="answer">24%</span>
-            </div>
-            <div class="solution-line">
-                <span class="step-label">3. Общая сумма доходов от сдачи имущества в аренду:</span><br />
-                <span class="formula">2 000 000 + 450 500</span> = <span class="answer">2 450 000 руб.</span>
-            </div>
-            <div class="solution-line">
-                <span class="step-label">4. Доля НДС-операций:</span><br />
-                <span class="formula">(2 000 000 / 2 450 000) × 100%</span> = <span class="answer">82%</span>
-            </div>
-            <div class="solution-line">
-                <span class="step-label">5. НДС к вычету по облагаемым операциям:</span><br />
-                <span class="formula">120 500 × 82%</span> = <span class="answer">98 810 руб.</span>
-            </div>
-            <button class="close-modal" id="closeModal">✕ Закрыть</button>
-        </div>
-    </div>
-
-    <div class="grid">
-
-        <div class="task-item" data-field="step1">
-            <span class="step-label"><span class="num">1.</span> Распределите административные расходы пропорционально прямым затратам в льготных операциях:</span>
-            <div class="input-row">
-                <input id="step1" type="text" placeholder="введите сумму" />
-                <span class="badge">руб.</span>
-            </div>
-        </div>
-
-        <div class="task-item" data-field="step2">
-            <span class="step-label"><span class="num">2.</span> Рассчитайте долю затрат по необлагаемым НДС операциям:</span>
-            <div class="input-row">
-                <input id="step2" type="text" placeholder="введите ответ" />
-                <span class="badge">%</span>
-            </div>
-        </div>
-
-        <div class="task-item" data-field="step3">
-            <span class="step-label"><span class="num">3.</span> Общая сумма доходов от сдачи имущества в аренду составила:</span>
-            <div class="input-row">
-                <input id="step3" type="text" placeholder="введите сумму" />
-                <span class="badge">руб.</span>
-            </div>
-        </div>
-
-        <div class="task-item" data-field="step4">
-            <span class="step-label"><span class="num">4.</span> Рассчитайте долю НДС-операций:</span>
-            <div class="input-row">
-                <input id="step4" type="text" placeholder="введите ответ" />
-                <span class="badge">%</span>
-            </div>
-        </div>
-
-        <div class="task-item" data-field="step5">
-            <span class="step-label"><span class="num">5.</span> Рассчитайте НДС к вычету по облагаемым операциям:</span>
-            <div class="input-row">
-                <input id="step5" type="text" placeholder="введите сумму" />
-                <span class="badge">руб.</span>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="actions">
-        <span class="status" id="statusMessage"></span>
-        <button class="btn btn-reset" id="resetBtn">🔄 Сбросить</button>
-        <button class="btn btn-primary" id="checkBtn">✅ Проверить</button>
-    </div>
-
+  <div class="footer-actions">
+    <button class="btn btn-outline reset-btn" id="resetBtn">↻ Сбросить</button>
+    <button class="btn btn-primary" id="checkBtn">✓ Проверить</button>
+  </div>
 </div>
 
 <script>
-    (function() {
-        const ANSWERS = {
-            step1: '55867',
-            step2: '24',
-            step3: '2450000',
-            step4: '82',
-            step5: '98810'
-        };
+  (function() {
+    const COLUMN_DATES = [
+      { id: 'sep', label: '1 сентября', date: '2026-09-01' },
+      { id: 'oct', label: '1 октября', date: '2026-10-01' },
+      { id: 'nov', label: '1 ноября', date: '2026-11-01' },
+      { id: 'dec', label: '1 декабря', date: '2026-12-01' }
+    ];
 
-        const fieldIds = ['step1', 'step2', 'step3', 'step4', 'step5'];
-        const inputMap = {};
+    const ITEMS_DATA = [
+      { id: 'item1', name: 'Бакалея', correctDate: '2026-09-01' },
+      { id: 'item2', name: 'Консервы', correctDate: '2026-10-01' },
+      { id: 'item3', name: 'Растительное масло', correctDate: '2026-11-01' },
+      { id: 'item4', name: 'Строительные материалы', correctDate: '2026-12-01' },
+      { id: 'item5', name: 'Корм для животных', correctDate: '2026-12-01' },
+      { id: 'item6', name: 'Молочная продукция', correctDate: '2026-11-01' },
+      { id: 'item7', name: 'Кондитерская продукция', correctDate: '2026-11-01' },
+      { id: 'item8', name: 'Мясные изделия', correctDate: '2026-11-01' }
+    ];
 
-        fieldIds.forEach(id => {
-            inputMap[id] = document.getElementById(id);
+    let state = { sep: [], oct: [], nov: [], dec: [], none: [] };
+    let checked = false;
+
+    const columnsContainer = document.getElementById('columnsContainer');
+    const resetBtn = document.getElementById('resetBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const sliderTrack = document.getElementById('sliderTrack');
+    const sliderPrev = document.getElementById('sliderPrev');
+    const sliderNext = document.getElementById('sliderNext');
+
+    let sliderOffset = 0;
+    const cardWidth = 156;
+    let visibleCards = 0;
+
+    const dateToColumnId = {
+      '2026-09-01': 'sep',
+      '2026-10-01': 'oct',
+      '2026-11-01': 'nov',
+      '2026-12-01': 'dec'
+    };
+
+    function resetState() {
+      state.sep = [];
+      state.oct = [];
+      state.nov = [];
+      state.dec = [];
+      state.none = ITEMS_DATA.map(item => item.id);
+      checked = false;
+      renderAll();
+      checkBtn.textContent = '✓ Проверить';
+      checkBtn.className = 'btn btn-primary';
+      sliderOffset = 0;
+      updateSlider();
+    }
+
+    function renderColumns() {
+      columnsContainer.innerHTML = '';
+      COLUMN_DATES.forEach(col => {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'column';
+        colDiv.dataset.columnId = col.id;
+
+        const header = document.createElement('div');
+        header.className = 'column-header';
+        const h2 = document.createElement('h2');
+        h2.textContent = col.label;
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = state[col.id] ? state[col.id].length : 0;
+        header.appendChild(h2);
+        header.appendChild(badge);
+
+        const dropzone = document.createElement('div');
+        dropzone.className = 'dropzone';
+
+        const itemsInColumn = state[col.id] || [];
+        itemsInColumn.forEach(itemId => {
+          const item = ITEMS_DATA.find(it => it.id === itemId);
+          if (item) {
+            const card = createCardElement(item, true);
+            dropzone.appendChild(card);
+          }
         });
 
-        const statusMsg = document.getElementById('statusMessage');
-        const bulbIcon = document.getElementById('bulbIcon');
-        const solutionModal = document.getElementById('solutionModal');
+        colDiv.appendChild(header);
+        colDiv.appendChild(dropzone);
+        columnsContainer.appendChild(colDiv);
 
-        function resetStyles() {
-            fieldIds.forEach(id => {
-                inputMap[id].classList.remove('correct', 'wrong');
-            });
-            bulbIcon.classList.remove('show');
-            solutionModal.classList.remove('show');
-            statusMsg.innerHTML = '';
-            statusMsg.className = 'status';
+        colDiv.addEventListener('dragover', handleDragOver);
+        colDiv.addEventListener('dragenter', handleDragEnter);
+        colDiv.addEventListener('dragleave', handleDragLeave);
+        colDiv.addEventListener('drop', handleDrop);
+      });
+    }
+
+    function createCardElement(item, isColumn = false) {
+      const card = document.createElement('div');
+      card.className = isColumn ? 'card' : 'slider-card';
+      card.draggable = true;
+      card.textContent = item.name;
+      card.dataset.itemId = item.id;
+      card.dataset.correctDate = item.correctDate || '';
+
+      if (checked) {
+        applyCardStyle(card, item.id);
+      }
+
+      card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', item.id);
+        card.classList.add('dragging');
+      });
+
+      card.addEventListener('dragend', (e) => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('.column').forEach(el => el.classList.remove('drag-over'));
+      });
+
+      return card;
+    }
+
+    function applyCardStyle(card, itemId) {
+      const item = ITEMS_DATA.find(it => it.id === itemId);
+      if (!item) return;
+
+      let currentCol = null;
+      for (const colId of ['sep', 'oct', 'nov', 'dec', 'none']) {
+        if (state[colId] && state[colId].includes(itemId)) {
+          currentCol = colId;
+          break;
+        }
+      }
+
+      const correctDate = item.correctDate;
+      let isCorrect = false;
+      if (correctDate === null) {
+        isCorrect = (currentCol === 'none');
+      } else {
+        const expectedCol = dateToColumnId[correctDate];
+        isCorrect = (currentCol === expectedCol);
+      }
+
+      card.classList.remove('correct', 'wrong');
+      if (isCorrect) {
+        card.classList.add('correct');
+      } else {
+        card.classList.add('wrong');
+      }
+    }
+
+    function updateSlider() {
+      const availableIds = state.none || [];
+      sliderTrack.innerHTML = '';
+
+      if (availableIds.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'slider-card empty-message';
+        emptyMsg.textContent = 'Вы распределили все товары';
+        emptyMsg.draggable = false;
+        sliderTrack.appendChild(emptyMsg);
+        sliderPrev.disabled = true;
+        sliderNext.disabled = true;
+        return;
+      }
+
+      availableIds.forEach(itemId => {
+        const item = ITEMS_DATA.find(it => it.id === itemId);
+        if (item) {
+          const card = createCardElement(item, false);
+          sliderTrack.appendChild(card);
+        }
+      });
+
+      const wrapperWidth = sliderTrack.parentElement.clientWidth;
+      visibleCards = Math.floor(wrapperWidth / cardWidth);
+      if (visibleCards < 1) visibleCards = 1;
+
+      const maxOffset = Math.max(0, availableIds.length - visibleCards);
+      if (sliderOffset > maxOffset) sliderOffset = maxOffset;
+      if (sliderOffset < 0) sliderOffset = 0;
+
+      sliderTrack.style.transform = `translateX(-${sliderOffset * cardWidth}px)`;
+
+      sliderPrev.disabled = (sliderOffset <= 0);
+      sliderNext.disabled = (sliderOffset >= maxOffset);
+    }
+
+    function renderAll() {
+      renderColumns();
+      updateSlider();
+      document.querySelectorAll('.column').forEach(col => {
+        const colId = col.dataset.columnId;
+        const badge = col.querySelector('.badge');
+        if (badge && colId) {
+          badge.textContent = state[colId].length;
+        }
+      });
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDragEnter(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const column = e.currentTarget;
+      column.classList.remove('drag-over');
+
+      const itemId = e.dataTransfer.getData('text/plain');
+      if (!itemId) return;
+
+      const columnId = column.dataset.columnId;
+      if (!columnId) return;
+
+      moveItemToColumn(itemId, columnId);
+    }
+
+    function moveItemToColumn(itemId, targetColumnId) {
+      if (state.none.includes(itemId)) {
+        state.none = state.none.filter(id => id !== itemId);
+        state[targetColumnId].push(itemId);
+      } else {
+        let sourceCol = null;
+        for (const colId of ['sep', 'oct', 'nov', 'dec']) {
+          if (state[colId].includes(itemId)) {
+            sourceCol = colId;
+            break;
+          }
+        }
+        if (!sourceCol) return;
+        if (sourceCol === targetColumnId) return;
+        state[sourceCol] = state[sourceCol].filter(id => id !== itemId);
+        state[targetColumnId].push(itemId);
+      }
+
+      checked = false;
+      checkBtn.textContent = '✓ Проверить';
+      checkBtn.className = 'btn btn-primary';
+      renderAll();
+    }
+
+    function checkAnswers() {
+      checked = true;
+      let correct = 0;
+      const total = ITEMS_DATA.length;
+
+      document.querySelectorAll('.card, .slider-card').forEach(card => {
+        const itemId = card.dataset.itemId;
+        if (itemId) {
+          applyCardStyle(card, itemId);
+        }
+      });
+
+      for (const item of ITEMS_DATA) {
+        const itemId = item.id;
+        const correctDate = item.correctDate;
+
+        let currentCol = null;
+        for (const colId of ['sep', 'oct', 'nov', 'dec', 'none']) {
+          if (state[colId] && state[colId].includes(itemId)) {
+            currentCol = colId;
+            break;
+          }
         }
 
-        function resetAll() {
-            fieldIds.forEach(id => {
-                inputMap[id].value = '';
-                inputMap[id].classList.remove('correct', 'wrong');
-            });
-            bulbIcon.classList.remove('show');
-            solutionModal.classList.remove('show');
-            statusMsg.innerHTML = '';
-            statusMsg.className = 'status';
+        let isCorrect = false;
+        if (correctDate === null) {
+          isCorrect = (currentCol === 'none');
+        } else {
+          const expectedCol = dateToColumnId[correctDate];
+          isCorrect = (currentCol === expectedCol);
         }
+        if (isCorrect) correct++;
+      }
 
-        function checkAnswers() {
-            fieldIds.forEach(id => {
-                inputMap[id].classList.remove('correct', 'wrong');
-            });
+      const allCorrect = (correct === total);
+      
+      if (allCorrect) {
+        checkBtn.textContent = `✅ Все ${total} верно`;
+        checkBtn.className = 'btn btn-primary success';
+      } else {
+        checkBtn.textContent = `🔍 ${correct} из ${total}`;
+        checkBtn.className = 'btn btn-primary partial';
+      }
+    }
 
-            let allCorrect = true;
-            let hasEmpty = false;
+    resetBtn.addEventListener('click', resetState);
+    checkBtn.addEventListener('click', checkAnswers);
 
-            fieldIds.forEach(id => {
-                const input = inputMap[id];
-                const raw = input.value.trim().replace(/\s/g, '');
-                const expected = ANSWERS[id];
-                let isCorrect = false;
+    sliderPrev.addEventListener('click', () => {
+      if (sliderOffset > 0) {
+        sliderOffset--;
+        updateSlider();
+      }
+    });
 
-                if (raw === '') {
-                    hasEmpty = true;
-                    return;
-                }
+    sliderNext.addEventListener('click', () => {
+      const availableIds = state.none || [];
+      const maxOffset = Math.max(0, availableIds.length - visibleCards);
+      if (sliderOffset < maxOffset) {
+        sliderOffset++;
+        updateSlider();
+      }
+    });
 
-                if (expected !== undefined) {
-                    const userNum = parseFloat(raw);
-                    const expectedNum = parseFloat(expected);
-                    if (!isNaN(userNum) && !isNaN(expectedNum)) {
-                        isCorrect = Math.abs(userNum - expectedNum) < 0.01;
-                    }
-                }
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => updateSlider(), 100);
+    });
 
-                if (isCorrect) {
-                    input.classList.add('correct');
-                } else {
-                    input.classList.add('wrong');
-                    allCorrect = false;
-                }
-            });
-
-            if (hasEmpty) {
-                statusMsg.innerHTML = '⚠️ Заполните все поля';
-                statusMsg.className = 'status error';
-                bulbIcon.classList.remove('show');
-                solutionModal.classList.remove('show');
-                return;
-            }
-
-            if (allCorrect) {
-                statusMsg.innerHTML = '✅ Всё верно! Отлично!';
-                statusMsg.className = 'status success';
-                bulbIcon.classList.remove('show');
-                solutionModal.classList.remove('show');
-            } else {
-                statusMsg.innerHTML = '❌ Вы допустили ошибку, нажмите на лампочку и воспользуйтесь подсказкой';
-                statusMsg.className = 'status error';
-                bulbIcon.classList.add('show');
-            }
-        }
-
-        // Открытие модального окна по клику на лампочку
-        bulbIcon.addEventListener('click', function() {
-            solutionModal.classList.add('show');
-        });
-
-        // Закрытие модального окна
-        document.getElementById('closeModal').addEventListener('click', function() {
-            solutionModal.classList.remove('show');
-        });
-
-        // Закрытие по клику вне окна
-        solutionModal.addEventListener('click', function(e) {
-            if (e.target === solutionModal) {
-                solutionModal.classList.remove('show');
-            }
-        });
-
-        fieldIds.forEach(id => {
-            const input = inputMap[id];
-            input.addEventListener('input', function(e) {
-                e.target.classList.remove('correct', 'wrong');
-                bulbIcon.classList.remove('show');
-                solutionModal.classList.remove('show');
-                statusMsg.innerHTML = '';
-                statusMsg.className = 'status';
-            });
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    checkAnswers();
-                }
-            });
-        });
-
-        document.getElementById('checkBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            checkAnswers();
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            resetAll();
-        });
-
-        resetStyles();
-    })();
+    resetState();
+  })();
 </script>
-
 </body>
 </html>
