@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Тренажер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef2f7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            padding: 1rem;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .quiz-header {
+            padding: 1rem 1.5rem 0.6rem 1.5rem;
+            border-bottom: 1px solid rgba(149, 202, 250, 0.3);
+            background: #fefefe;
+        }
+
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-counter {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c3e50;
+            background: #eef4fc;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+
+        .score-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e4663;
+            background: #eef4fc;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+
+        .question-area {
+            padding: 1.2rem 1.5rem 1rem 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #0b2b3f;
+            margin-bottom: 1.2rem;
+            border-left: 4px solid #95CAFA;
+            padding-left: 1rem;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .option-item {
+            border: 2px solid #95CAFA;
+            border-radius: 1.2rem;
+            padding: 0.7rem 1.2rem;
+            background: #ffffff;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            font-size: 0.95rem;
+            line-height: 1.35;
+            color: #1f3b4c;
+        }
+
+        .option-item:hover {
+            background: #f8fcff;
+            border-color: #6fb0e0;
+        }
+
+        .option-radio {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.1rem;
+            height: 1.1rem;
+            border: 2px solid #95CAFA;
+            border-radius: 50%;
+            margin-top: 0.1rem;
+            position: relative;
+            cursor: pointer;
+            background: white;
+            transition: 0.1s;
+            flex-shrink: 0;
+        }
+        .option-radio:checked {
+            border-color: #2c7ab1;
+            background-color: #2c7ab1;
+            box-shadow: inset 0 0 0 3px white;
+        }
+        .option-radio:focus {
+            outline: none;
+        }
+
+        .option-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .option-item.correct-highlight {
+            background-color: #e0f7e8;
+            border-color: #2b8c5e;
+        }
+        .option-item.wrong-highlight {
+            background-color: #ffe7e7;
+            border-color: #d9534f;
+        }
+
+        .actions {
+            padding: 0 1.5rem 1.2rem 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+
+        button {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 3rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #f0f4f9;
+            color: #1f4e6e;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        .btn-primary {
+            background: #2c7ab1;
+            color: white;
+            box-shadow: 0 4px 8px rgba(44,122,177,0.15);
+        }
+        .btn-primary:hover {
+            background: #1f6190;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #eef2f7;
+            border: 1px solid #cbdbe2;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .explanation-box {
+            margin: 0 1.5rem 1rem 1.5rem;
+            background: #f9fdfe;
+            border-radius: 1rem;
+            padding: 0.9rem 1.2rem;
+            border-left: 4px solid #95CAFA;
+            font-size: 0.9rem;
+            color: #1e4663;
+            line-height: 1.4;
+        }
+
+        .result-screen {
+            text-align: center;
+            padding: 2rem 1.5rem 2.5rem;
+        }
+
+        .result-icon {
+            font-size: 2.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: #1a2c3e;
+        }
+
+        .result-message {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .result-score {
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #eef4fc;
+            display: inline-block;
+            padding: 0.4rem 1.4rem;
+            border-radius: 60px;
+            margin-bottom: 1.5rem;
+            color: #1f6190;
+        }
+
+        @media (max-width: 480px) {
+            .question-text { font-size: 1rem; padding-left: 0.7rem; }
+            .option-item { padding: 0.6rem 0.9rem; font-size: 0.9rem; }
+            .actions { padding: 0 1rem 1rem 1rem; justify-content: stretch; }
+            .actions button { flex: 1; }
+            .explanation-box { margin: 0 1rem 0.8rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="app"></div>
+
+<script>
+    // Тестовые вопросы по НДС для УСН
+    const RAW_QUESTIONS = [
+        {
+            text: "Ваша компания на УСН применяла НДС по ставке 7% и с 3-го квартала переходит на ставку 22%. На складе остались товары, которые приобрели в 2025 году, когда еще не платили НДС. Вы планируете использовать их в облагаемой НДС деятельности. Заявите ли вы входной НДС к вычету после перехода на ставку 22%?",
+            options: [
+                "Нет, товары купили в 2025 году, когда компания не была плательщиком НДС",
+                "Да, но только по товарам, которые приобрели в 2026 году",
+                "Да, заявлю к вычету НДС со стоимости товаров, которые остались на момент перехода и будут использовать в облагаемой НДС деятельности"
+            ],
+            correctIndex: 2,
+            explanation: "Если вы переходите с пониженной ставки НДС на общую, примите к вычету входной налог по товарам, которые остались на момент перехода и используют в облагаемой НДС деятельности. Для вычета соберите счета-фактуры от поставщиков."
+        },
+        {
+            text: "В мае ваша компания превысила лимит 20 млн руб. и с 1 июня стала плательщиком НДС. Компания оказывает услуги физлицам и не выставляет счет-фактуру на каждую услугу. Как вы отразите такие операции в книге продаж?",
+            options: [
+                "Зарегистрирую показатели отчета о закрытии смены ККТ или документ со сводными данными о продажах и начисленном НДС за месяц или квартал",
+                "Зарегистрирую в книге продаж отдельный счет-фактуру на каждую оказанную услугу",
+                "Не буду регистрировать продажи физлицам в книге продаж, поскольку счета-фактуры им не выставляют"
+            ],
+            correctIndex: 0,
+            explanation: "Если вы продаёте товары или услуги физлицам, то в книге продаж зарегистрируйте отчет о закрытии смены ККТ либо другой документ со сводными данными о продажах и начисленном НДС за месяц или квартал, например бухгалтерскую справку. Порядок, который выберете, закрепите в учетной политике."
+        },
+        {
+            text: "ИП на УСН, который платит НДС, получил от матери в подарок коммерческую недвижимость и планирует использовать ее в бизнесе. Будет ли он платить НДС с этой операции?",
+            options: [
+                "Нет, не будет, потому что, когда получаешь подарки, обязанность платить НДС не возникает",
+                "Да, будет, потому что ИП платит НДС",
+                "Да, будет, если стоимость недвижимости превысит лимит"
+            ],
+            correctIndex: 0,
+            explanation: "Подаренная недвижимость — это внереализационный доход, который учитывайте при УСН. Но уплачивать с него НДС предпринимателю не надо."
+        },
+        {
+            text: "Вы продаете мебель физлицу в рассрочку. В день, когда передали товар, покупатель еще не внес деньги. Как вы начислите НДС и оформите кассовые чеки?",
+            options: [
+                "Начислю НДС при каждой оплате по рассрочке и укажу его в чеке",
+                "Начислю НДС, когда передам товар, и выдам чек с признаком «товар» и выделенным НДС. При последующих платежах буду пробивать чеки с признаком «Оплата кредита» без НДС",
+                "Не буду начислять НДС при передаче товара, а сделаю это после того, как покупатель полностью оплатит рассрочку"
+            ],
+            correctIndex: 1,
+            explanation: "Если товар сначала передают покупателю, а деньги поступают позже, НДС начисляйте на дату отгрузки. В день передачи товара выдайте чек с признаком «товар» и выделенным НДС. При последующих платежах по рассрочке налоговую базу по НДС повторно не формируйте — чеки пробивайте с признаком «Оплата кредита» без НДС."
+        },
+        {
+            text: "Вы работаете на УСН с НДС 5% и в течение года планируете перейти на АУСН. До перехода вы получили аванс от покупателя, а товар будете передавать уже после перехода на АУСН, когда реализация будет без НДС. Будете ли вы начислять НДС с аванса, который получили до перехода на АУСН?",
+            options: [
+                "Да, НДС с аванса начислю в период, когда применяли УСН, даже если реализация будет после перехода на АУСН",
+                "Нет, так как реализация произойдет уже на АУСН и будет без НДС",
+                "Нет, НДС возникает только в момент окончательной оплаты товара"
+            ],
+            correctIndex: 0,
+            explanation: "НДС с аванса, который получили до перехода на АУСН, исчислите в период, когда применяли УСН. То, что товар вы передадите после перехода на АУСН, значения не имеет."
+        },
+        {
+            text: "ИП на УСН «доходы минус расходы» применяет НДС по ставке 5%. В течение года он экспортирует товары за пределы ЕАЭС и хочет применять к таким поставкам ставку 5%, чтобы не подтверждать нулевую ставку. Может ли он отказаться от ставки НДС 0% при экспорте?",
+            options: [
+                "Нет, при экспорте всегда применяют ставку 0%",
+                "Да, можно отказаться от ставки 0% и применять ставку 5%, если подать в налоговую заявление об отказе от нулевой ставки",
+                "Да, достаточно просто указать ставку 5% в декларации, подавать заявление не нужно"
+            ],
+            correctIndex: 1,
+            explanation: "При экспорте товаров за пределы ЕАЭС вы вправе отказаться от применения ставки НДС 0% и использовать ставку 5%. Для этого необходимо заранее подать в налоговую заявление об отказе от нулевой ставки."
+        }
+    ];
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function buildShuffledQuestions() {
+        return RAW_QUESTIONS.map(q => {
+            const optsWithIndex = q.options.map((optText, idx) => ({ text: optText, originalIndex: idx }));
+            const shuffledOpts = shuffleArray([...optsWithIndex]);
+            let newCorrectIndex = -1;
+            for (let i = 0; i < shuffledOpts.length; i++) {
+                if (shuffledOpts[i].originalIndex === q.correctIndex) {
+                    newCorrectIndex = i;
+                    break;
+                }
+            }
+            return {
+                text: q.text,
+                options: shuffledOpts.map(item => item.text),
+                correctIndex: newCorrectIndex,
+                explanation: q.explanation
+            };
+        });
+    }
+
+    let CURRENT_QUESTIONS = buildShuffledQuestions();
+
+    let currentState = {
+        phase: 'quiz',
+        currentQuestionIdx: 0,
+        userAnswers: [],
+        explanationForCurrent: null,
+        isAnswerChecked: false,
+        selectedOptionTemp: null,
+        totalQuestions: CURRENT_QUESTIONS.length
+    };
+
+    const appContainer = document.getElementById('app');
+
+    function resetAndRestart() {
+        CURRENT_QUESTIONS = buildShuffledQuestions();
+        currentState = {
+            phase: 'quiz',
+            currentQuestionIdx: 0,
+            userAnswers: [],
+            explanationForCurrent: null,
+            isAnswerChecked: false,
+            selectedOptionTemp: null,
+            totalQuestions: CURRENT_QUESTIONS.length
+        };
+        render();
+    }
+
+    function getCorrectCount() {
+        let correct = 0;
+        for (let i = 0; i < currentState.userAnswers.length; i++) {
+            if (currentState.userAnswers[i] && currentState.userAnswers[i].isCorrect) correct++;
+        }
+        return correct;
+    }
+
+    function allQuestionsAnswered() {
+        return currentState.userAnswers.length === CURRENT_QUESTIONS.length && 
+               currentState.userAnswers.every(a => a !== undefined);
+    }
+
+    function showFinalResult() {
+        const correctCount = getCorrectCount();
+        const total = CURRENT_QUESTIONS.length;
+        const allCorrect = (correctCount === total);
+        
+        let icon = allCorrect ? '🏆✨' : '📘';
+        let title = allCorrect ? 'Молодец!' : 'Ваш результат';
+        let message = '';
+        
+        const resultHtml = `
+            <div class="quiz-header">
+                <div class="progress-area">
+                    <span class="question-counter">Итог</span>
+                    <span class="score-badge">${correctCount}/${total}</span>
+                </div>
+            </div>
+            <div class="result-screen">
+                <div class="result-icon">${icon}</div>
+                <div class="result-title">${title}</div>
+                <div class="result-score">${correctCount} из ${total}</div>
+                <div class="result-message">${message}</div>
+                <button class="btn-primary" id="restartBtn">Пройти заново</button>
+            </div>
+        `;
+        
+        appContainer.innerHTML = resultHtml;
+        const restartBtn = document.getElementById('restartBtn');
+        if (restartBtn) restartBtn.addEventListener('click', () => resetAndRestart());
+    }
+    
+    function handleNext() {
+        const nextIdx = currentState.currentQuestionIdx + 1;
+        if (nextIdx >= CURRENT_QUESTIONS.length) {
+            showFinalResult();
+            return;
+        }
+        currentState.currentQuestionIdx = nextIdx;
+        currentState.phase = 'quiz';
+        currentState.isAnswerChecked = false;
+        currentState.explanationForCurrent = null;
+        const saved = currentState.userAnswers[nextIdx];
+        currentState.selectedOptionTemp = saved ? saved.selectedIdx : null;
+        render();
+    }
+
+    function handleCheck() {
+        if (currentState.isAnswerChecked) return;
+        const selected = currentState.selectedOptionTemp;
+        if (selected === null) {
+            alert("Пожалуйста, выберите вариант ответа.");
+            return;
+        }
+        const idx = currentState.currentQuestionIdx;
+        const isCorrect = (selected === CURRENT_QUESTIONS[idx].correctIndex);
+        if (!currentState.userAnswers[idx]) {
+            currentState.userAnswers[idx] = { selectedIdx: selected, isCorrect: isCorrect };
+        } else {
+            currentState.userAnswers[idx].selectedIdx = selected;
+            currentState.userAnswers[idx].isCorrect = isCorrect;
+        }
+        currentState.isAnswerChecked = true;
+        currentState.explanationForCurrent = CURRENT_QUESTIONS[idx].explanation;
+        currentState.phase = 'explanation';
+        render();
+    }
+
+    function selectOption(optionIndex) {
+        if (currentState.phase !== 'quiz') return;
+        if (currentState.isAnswerChecked) return;
+        currentState.selectedOptionTemp = optionIndex;
+        render();
+    }
+
+    function render() {
+        if (!appContainer) return;
+        if (allQuestionsAnswered() && currentState.currentQuestionIdx >= CURRENT_QUESTIONS.length) {
+            showFinalResult();
+            return;
+        }
+        
+        const total = CURRENT_QUESTIONS.length;
+        const qIdx = currentState.currentQuestionIdx;
+        const question = CURRENT_QUESTIONS[qIdx];
+        const isCheckedPhase = (currentState.phase === 'explanation');
+        const savedAnswer = currentState.userAnswers[qIdx];
+        let selectedIdx = currentState.selectedOptionTemp;
+        
+        let highlightMap = {};
+        if (isCheckedPhase && savedAnswer) {
+            const correctIdx = question.correctIndex;
+            const userSelected = savedAnswer.selectedIdx;
+            highlightMap[correctIdx] = 'correct';
+            if (userSelected !== correctIdx) {
+                highlightMap[userSelected] = 'wrong';
+            }
+        }
+        
+        let optionsHtml = '';
+        question.options.forEach((opt, idx) => {
+            let additionalClass = '';
+            if (highlightMap[idx] === 'correct') additionalClass = 'correct-highlight';
+            if (highlightMap[idx] === 'wrong') additionalClass = 'wrong-highlight';
+            const isCheckedAttr = (selectedIdx === idx) ? 'checked' : '';
+            const disabledAttr = (isCheckedPhase) ? 'disabled' : '';
+            optionsHtml += `
+                <div class="option-item ${additionalClass}" data-opt-index="${idx}">
+                    <input type="radio" name="questionOption" class="option-radio" value="${idx}" id="opt_${idx}" ${isCheckedAttr} ${disabledAttr}>
+                    <label for="opt_${idx}" class="option-text" style="cursor:pointer; flex:1;">${escapeHtml(opt)}</label>
+                </div>
+            `;
+        });
+        
+        let explanationBlock = '';
+        if (currentState.phase === 'explanation' && currentState.explanationForCurrent) {
+            explanationBlock = `
+                <div class="explanation-box">
+                    <strong>📖 Пояснение</strong><br>
+                    ${escapeHtml(currentState.explanationForCurrent)}
+                </div>
+            `;
+        }
+        
+        let actionButtons = '';
+        if (currentState.phase === 'quiz') {
+            actionButtons = `
+                <div class="actions">
+                    <button class="btn-primary" id="checkBtn">✓ Проверить</button>
+                </div>
+            `;
+        } else {
+            actionButtons = `
+                <div class="actions">
+                    <button class="btn-primary" id="nextBtn">Далее →</button>
+                </div>
+            `;
+        }
+        
+        const answeredCount = currentState.userAnswers.filter(a => a !== undefined).length;
+        
+        const headerHtml = `
+            <div class="quiz-header">
+                <div class="progress-area">
+                    <span class="question-counter">Вопрос ${qIdx+1} из ${total}</span>
+                    <span class="score-badge">✅ ${answeredCount}/${total}</span>
+                </div>
+            </div>
+            <div class="question-area">
+                <div class="question-text">${escapeHtml(question.text)}</div>
+                <div class="options-list" id="optionsContainer">
+                    ${optionsHtml}
+                </div>
+            </div>
+            ${explanationBlock}
+            ${actionButtons}
+        `;
+        
+        appContainer.innerHTML = headerHtml;
+        
+        const optionDivs = document.querySelectorAll('.option-item');
+        optionDivs.forEach(div => {
+            const radio = div.querySelector('.option-radio');
+            if (radio && !radio.disabled) {
+                div.addEventListener('click', (e) => {
+                    const idxAttr = div.getAttribute('data-opt-index');
+                    if (idxAttr !== null && currentState.phase === 'quiz' && !currentState.isAnswerChecked) {
+                        const idxNum = parseInt(idxAttr, 10);
+                        selectOption(idxNum);
+                        const radioInside = div.querySelector('.option-radio');
+                        if (radioInside) radioInside.checked = true;
+                    }
+                });
+            }
+        });
+        
+        const radios = document.querySelectorAll('.option-radio');
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (currentState.phase === 'quiz' && !currentState.isAnswerChecked) {
+                    const val = parseInt(e.target.value, 10);
+                    selectOption(val);
+                }
+            });
+        });
+        
+        const checkBtn = document.getElementById('checkBtn');
+        if (checkBtn) checkBtn.addEventListener('click', handleCheck);
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.addEventListener('click', handleNext);
+    }
+    
+    function escapeHtml(str) {
+        let result = str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+        result = result.replace(/Ё/g, 'Е').replace(/ё/g, 'е');
+        return result;
+    }
+    
+    render();
+</script>
+</body>
+</html>
